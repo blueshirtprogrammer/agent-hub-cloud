@@ -34,7 +34,7 @@ export const DocumentViewer = () => {
       const allDocs = [
         ...(processDocsRes.data || []).map(doc => ({
           name: doc.name,
-          path: doc.name, // Store just the name for the path
+          path: doc.name,
           type: 'process',
           uploadedAt: doc.created_at || new Date().toISOString()
         })),
@@ -71,19 +71,25 @@ export const DocumentViewer = () => {
                         doc.type === 'property' ? 'property_documents' : 
                         'listing_documents';
 
-      console.log('Downloading from bucket:', bucketName, 'path:', doc.path);
-      
-      const { data, error } = await supabase.storage
+      // Get the download URL first
+      const { data: { publicUrl }, error: urlError } = supabase.storage
         .from(bucketName)
-        .download(doc.path);
+        .getPublicUrl(doc.path);
 
-      if (error) {
-        console.error('Download error:', error);
-        throw error;
+      if (urlError) {
+        console.error('Error getting public URL:', urlError);
+        throw urlError;
       }
 
+      // Fetch the file using the public URL
+      const response = await fetch(publicUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+
       // Create download link
-      const url = window.URL.createObjectURL(data);
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = doc.name;
