@@ -129,6 +129,39 @@ export type Database = {
         }
         Relationships: []
       }
+      integration_configurations: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_enabled: boolean | null
+          metadata: Json | null
+          name: string
+          type: Database["public"]["Enums"]["integration_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          metadata?: Json | null
+          name: string
+          type: Database["public"]["Enums"]["integration_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          metadata?: Json | null
+          name?: string
+          type?: Database["public"]["Enums"]["integration_type"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       knowledge_base: {
         Row: {
           confidence: number | null
@@ -561,6 +594,7 @@ export type Database = {
         | "technology"
         | "healthcare"
         | "education"
+      integration_type: "crm" | "property_portal" | "calendar" | "automation"
       listing_status:
         | "draft"
         | "pending_documents"
