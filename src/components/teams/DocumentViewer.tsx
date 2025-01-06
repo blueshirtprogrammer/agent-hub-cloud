@@ -34,19 +34,19 @@ export const DocumentViewer = () => {
       const allDocs = [
         ...(processDocsRes.data || []).map(doc => ({
           name: doc.name,
-          path: `process_documents/${doc.name}`,
+          path: doc.name, // Store just the name for the path
           type: 'process',
           uploadedAt: doc.created_at || new Date().toISOString()
         })),
         ...(propertyDocsRes.data || []).map(doc => ({
           name: doc.name,
-          path: `property_documents/${doc.name}`,
+          path: doc.name,
           type: 'property',
           uploadedAt: doc.created_at || new Date().toISOString()
         })),
         ...(listingDocsRes.data || []).map(doc => ({
           name: doc.name,
-          path: `listing_documents/${doc.name}`,
+          path: doc.name,
           type: 'listing',
           uploadedAt: doc.created_at || new Date().toISOString()
         }))
@@ -71,11 +71,16 @@ export const DocumentViewer = () => {
                         doc.type === 'property' ? 'property_documents' : 
                         'listing_documents';
 
+      console.log('Downloading from bucket:', bucketName, 'path:', doc.path);
+      
       const { data, error } = await supabase.storage
         .from(bucketName)
-        .download(doc.name); // Use just the filename, not the full path
+        .download(doc.path);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Download error:', error);
+        throw error;
+      }
 
       // Create download link
       const url = window.URL.createObjectURL(data);
@@ -109,7 +114,7 @@ export const DocumentViewer = () => {
 
       const { error } = await supabase.storage
         .from(bucketName)
-        .remove([doc.name]); // Use just the filename, not the full path
+        .remove([doc.path]);
 
       if (error) throw error;
 
