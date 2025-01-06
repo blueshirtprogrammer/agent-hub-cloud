@@ -71,18 +71,13 @@ export const DocumentViewer = () => {
                         doc.type === 'property' ? 'property_documents' : 
                         'listing_documents';
 
-      // Get the download URL first
-      const { data: { publicUrl }, error: urlError } = supabase.storage
+      // Get the download URL
+      const { data } = supabase.storage
         .from(bucketName)
         .getPublicUrl(doc.path);
 
-      if (urlError) {
-        console.error('Error getting public URL:', urlError);
-        throw urlError;
-      }
-
       // Fetch the file using the public URL
-      const response = await fetch(publicUrl);
+      const response = await fetch(data.publicUrl);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
