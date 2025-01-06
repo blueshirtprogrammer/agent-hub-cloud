@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { agentService } from "@/services/AgentService";
-import { Lightbulb, Mail, FileSpreadsheet } from "lucide-react";
+import { 
+  Lightbulb, Mail, FileSpreadsheet, Camera, Calendar, 
+  FileText, Home, ClipboardCheck, Key, MessageSquare 
+} from "lucide-react";
 
 export const IntegrationRequest = () => {
   const [description, setDescription] = useState("");
@@ -37,16 +40,52 @@ export const IntegrationRequest = () => {
 
   const examples = [
     {
-      icon: <Mail className="w-5 h-5" />,
-      title: "Email Integration",
-      description: "Connect our sales team's emails to generate weekly reports for the director",
-      prompt: "Connect our sales team's emails to generate weekly reports for the director summarizing important emails from Monday to Friday"
+      icon: <FileText className="w-5 h-5" />,
+      title: "Form 6 Document Flow",
+      description: "Automate Form 6 processing and document collection",
+      prompt: "Create a workflow to collect and process Form 6, rates notices, and tenancy agreements. Automatically notify when documents are received and store them in our system."
     },
     {
-      icon: <FileSpreadsheet className="w-5 h-5" />,
-      title: "Spreadsheet Automation",
-      description: "Sync property data from our CRM to Google Sheets daily",
-      prompt: "Create a daily sync between our CRM and a Google Sheet to track all new property listings and their status"
+      icon: <Camera className="w-5 h-5" />,
+      title: "Photography Scheduling",
+      description: "Coordinate photographer and inspection bookings",
+      prompt: "Connect our photographer's Acuity Scheduling calendar with our inspection manager's availability to automatically schedule property photos and virtual tours."
+    },
+    {
+      icon: <Calendar className="w-5 h-5" />,
+      title: "Open Home Automation",
+      description: "Manage open home scheduling and notifications",
+      prompt: "Automate open home scheduling based on inspection manager availability, send Form 9 notices to tenants, and manage visitor registrations."
+    },
+    {
+      icon: <Home className="w-5 h-5" />,
+      title: "Portal Listing Sync",
+      description: "Synchronize property listings across platforms",
+      prompt: "Automatically sync property details, photos, and virtual tours from our CRM to all advertising portals and generate QR-coded flyers for the offer system."
+    },
+    {
+      icon: <ClipboardCheck className="w-5 h-5" />,
+      title: "Offer System Integration",
+      description: "Connect offer system with notifications",
+      prompt: "Set up automated notifications for sellers when offers are received, integrate with DocuSign for contracts, and manage the countdown timer system for offers."
+    },
+    {
+      icon: <Key className="w-5 h-5" />,
+      title: "Settlement Coordination",
+      description: "Automate settlement process tasks",
+      prompt: "Create a workflow to generate tax invoices, schedule pre-settlement inspections, and notify all parties of important settlement dates and tasks."
+    },
+    {
+      icon: <MessageSquare className="w-5 h-5" />,
+      title: "Buyer Communication",
+      description: "Automate buyer response system",
+      prompt: "Set up automated responses to buyer enquiries with property information, upcoming open home times, and registration links for the offer system."
+    },
+    {
+      icon: <Mail className="w-5 h-5" />,
+      title: "Document Distribution",
+      description: "Automate document sharing with parties",
+      prompt: "Automatically distribute required documents to buyers upon registration, including title searches, contracts, and property reports."
     }
   ];
 
@@ -66,7 +105,7 @@ export const IntegrationRequest = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Textarea
-              placeholder="Describe what you want to integrate (e.g., 'Connect our sales team's emails to generate weekly reports for the director')"
+              placeholder="Describe what you want to integrate (e.g., 'Automate Form 6 processing and document collection workflow')"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="min-h-[100px]"
@@ -89,7 +128,7 @@ export const IntegrationRequest = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {examples.map((example, index) => (
               <Card
                 key={index}
