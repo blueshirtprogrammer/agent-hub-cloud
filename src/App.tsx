@@ -9,6 +9,7 @@ import { Settings } from "./pages/Settings";
 import { Resources } from "./pages/Resources";
 import { DocumentManagement } from "./pages/DocumentManagement";
 import { Changelog } from "./pages/Changelog";
+import { ProjectBrief } from "./pages/ProjectBrief";
 import Index from "./pages/Index";
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
             <Route path="documents" element={<DocumentManagement />} />
             <Route path="settings" element={<Settings />} />
             <Route path="changelog" element={<Changelog />} />
+            <Route path="brief" element={<ProjectBrief />} />
           </Route>
         </Routes>
       </Router>

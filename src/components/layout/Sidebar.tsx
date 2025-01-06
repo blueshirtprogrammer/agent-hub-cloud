@@ -9,6 +9,7 @@ import {
   Settings,
   CreditCard,
   FileText,
+  Book,
 } from "lucide-react";
 
 const menuItems = [
@@ -19,6 +20,7 @@ const menuItems = [
   { icon: Home, label: "Properties", path: "/properties" },
   { icon: FileText, label: "Documents", path: "/documents" },
   { icon: CreditCard, label: "Resources", path: "/resources" },
+  { icon: Book, label: "Project Brief", path: "/brief" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
