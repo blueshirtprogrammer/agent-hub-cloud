@@ -7,18 +7,21 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Initialize Gemini with the correct API endpoint and model
 const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '', {
   apiEndpoint: 'https://generativelanguage.googleapis.com/v1beta'
 })
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { 
+      headers: corsHeaders,
+      status: 204
+    })
   }
 
   try {
-    const { imageData, context } = await req.json()
+    const { screenshot, context } = await req.json()
     console.log('Analyzing interface with context:', context)
 
     // Initialize Supabase client
@@ -28,9 +31,8 @@ serve(async (req) => {
     )
 
     // Convert base64 to Uint8Array for Gemini
-    const binaryData = Uint8Array.from(atob(imageData.split(',')[1]), c => c.charCodeAt(0))
+    const binaryData = Uint8Array.from(atob(screenshot.split(',')[1]), c => c.charCodeAt(0))
     
-    // Use gemini-1.5-flash for image analysis as it supports multimodal inputs
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const prompt = `You are a world-class UX/UI expert and conversion optimization specialist, similar to Sabri Suby, known for creating high-converting, user-centric interfaces. You're analyzing a real estate AI agent management platform that helps agencies automate and optimize their operations.
@@ -43,35 +45,6 @@ This is an AI Agent Management Platform specifically designed for real estate ag
 - Team creation and management
 - Integration with various real estate tools
 - Billing and resource management
-
-The target users are real estate agency administrators and agents who need to:
-- Efficiently manage their daily tasks
-- Handle property listings
-- Process real estate documents
-- Manage teams and resources
-- Track performance metrics
-
-As Sabri Suby would approach this, analyze this interface screenshot focusing on:
-
-1. Conversion Optimization
-- Is the interface designed to maximize user engagement and task completion?
-- Are there clear calls-to-action?
-- Does the layout guide users toward key actions?
-
-2. Visual Hierarchy & Psychology
-- How well does the design psychologically guide users?
-- Are important elements given proper visual weight?
-- Does the layout create a natural flow?
-
-3. User Experience
-- How intuitive is the navigation?
-- Are there any friction points?
-- Is the interface accessible to all users?
-
-4. Real Estate Context
-- Does the interface align with real estate professionals' needs?
-- Are industry-specific features properly highlighted?
-- Is the terminology appropriate for the real estate context?
 
 Current context: ${context || 'No specific context provided'}
 
@@ -96,11 +69,6 @@ Provide analysis in this format:
     "strengths": [],
     "improvements": [],
     "priority_actions": []
-  },
-  "sabri_suby_recommendations": {
-    "headline_suggestions": [],
-    "cta_improvements": [],
-    "psychological_triggers": []
   }
 }`
 
@@ -111,7 +79,7 @@ Provide analysis in this format:
         role: 'user',
         parts: [
           { text: prompt },
-          { inlineData: { mimeType: 'image/png', data: imageData.split(',')[1] } }
+          { inlineData: { mimeType: 'image/png', data: screenshot.split(',')[1] } }
         ]
       }]
     })

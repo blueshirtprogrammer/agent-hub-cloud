@@ -7,24 +7,24 @@ export const captureAndAnalyzeScreen = async (context: string) => {
     const canvas = await html2canvas(document.body);
     const screenshot = canvas.toDataURL('image/png');
 
-    // First, store the screenshot
-    const { data: captureData, error: captureError } = await supabase.functions.invoke('capture-screenshot', {
-      body: { imageData: screenshot, context }
-    });
-
-    if (captureError) throw captureError;
-
-    // Then, analyze the screenshot
-    const { data: { analysis }, error: analysisError } = await supabase.functions.invoke('analyze-interface', {
+    // Call the edge function directly
+    const { data, error } = await supabase.functions.invoke('analyze-interface', {
       body: { 
-        imageData: screenshot, 
-        context,
-        analysisId: captureData.id 
+        screenshot,
+        context
       }
     });
 
-    if (analysisError) throw analysisError;
-    return analysis;
+    if (error) {
+      console.error('Analysis error:', error);
+      throw error;
+    }
+
+    if (!data?.analysis) {
+      throw new Error('No analysis data received');
+    }
+
+    return data.analysis;
   } catch (error) {
     console.error('Error capturing and analyzing screen:', error);
     throw error;
