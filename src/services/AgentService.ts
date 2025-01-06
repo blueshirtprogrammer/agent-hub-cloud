@@ -70,7 +70,8 @@ class AgentService {
       id: crypto.randomUUID(),
       name,
       agents,
-      specialization
+      specialization,
+      orchestrators: [], // Add the required orchestrators property
     };
     this.teams.set(team.id, team);
     return team;

@@ -15,9 +15,9 @@ const Index = () => {
   useEffect(() => {
     // Initialize some default agents
     if (agentService.getAgents().length === 0) {
-      agentService.createAgent("WebBot", "BROWSER_CONTROLLER", ["browser_control", "screenshot"]);
-      agentService.createAgent("VisionBot", "VISION_ANALYZER", ["vision", "ocr"]);
-      agentService.createAgent("DataBot", "DATA_PROCESSOR", ["data_processing", "database"]);
+      agentService.createAgent("WebBot", "BROWSER_AGENT", ["browser_control", "screenshot"]);
+      agentService.createAgent("VisionBot", "VISION_AGENT", ["vision", "ocr"]);
+      agentService.createAgent("DataBot", "DATA_AGENT", ["data_processing", "database"]);
     }
     
     updateAgentsAndTasks();
