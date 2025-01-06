@@ -2,9 +2,10 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { WorkflowStages } from "@/components/workflow/WorkflowStages";
 import { DocumentRequirements } from "@/components/workflow/DocumentRequirements";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 
 interface WorkflowTemplate {
@@ -20,25 +21,19 @@ interface WorkflowTemplate {
 }
 
 export const WorkflowManagement = () => {
-  const { data: workflow, isLoading } = useQuery({
+  const { data: workflow, isLoading, error } = useQuery({
     queryKey: ['workflows'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('workflow_templates')
         .select('*')
         .eq('name', 'Form 6 to Settlement')
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) throw new Error('Workflow template not found');
       
-      // Cast the JSON data to the correct type
-      const typedData = {
-        ...data,
-        stages: data.stages as WorkflowTemplate['stages'],
-        required_documents: data.required_documents as string[]
-      } as WorkflowTemplate;
-
-      return typedData;
+      return data as WorkflowTemplate;
     },
   });
 
@@ -46,6 +41,19 @@ export const WorkflowManagement = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load workflow template. Please try again later.
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
