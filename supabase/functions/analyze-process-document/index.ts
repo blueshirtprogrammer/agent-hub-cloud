@@ -14,8 +14,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { filePath } = await req.json()
-    console.log('Analyzing document:', filePath)
+    const { filePath, documentType } = await req.json()
+    console.log('Analyzing document:', filePath, 'Type:', documentType)
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -32,38 +32,34 @@ Deno.serve(async (req) => {
     // Convert file to text
     const text = await fileData.text()
 
-    // Analyze with Gemini
+    // Analyze with Gemini based on document type
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
-    const prompt = `Analyze this real estate process document and create a structured output with:
-    1. Required team roles and their responsibilities
-    2. Main process stages
-    3. Tasks for each stage
-    4. Required documents and tools
-    Return ONLY a JSON object with these exact fields, no additional text:
-    {
-      "roles": [
-        {
-          "name": "string",
-          "responsibilities": "string",
-          "capabilities": ["string"]
-        }
-      ],
-      "stages": [
-        {
-          "name": "string",
-          "tasks": [
-            {
-              "description": "string",
-              "assignedTo": "string",
-              "requiredDocs": ["string"]
-            }
-          ]
-        }
-      ]
+    
+    const prompts = {
+      form_6: `Analyze this Form 6 (Appointment of Real Estate Agent) and extract:
+        1. Property address
+        2. Seller details
+        3. Commission rate
+        4. Listing period
+        5. Special conditions
+        Return a JSON object with these fields.`,
+      rates_notice: `Analyze this rates notice and extract:
+        1. Property details
+        2. Assessment number
+        3. Rates amount
+        4. Due date
+        Return a JSON object with these fields.`,
+      tenancy_agreement: `Analyze this tenancy agreement and extract:
+        1. Property address
+        2. Tenant details
+        3. Lease period
+        4. Rent amount
+        5. Special conditions
+        Return a JSON object with these fields.`,
+      // Add more document type prompts as needed
     }
 
-    Document text:
-    ${text}`
+    const prompt = `${prompts[documentType as keyof typeof prompts] || 'Analyze this document and extract key information.'}\n\nDocument text:\n${text}`
 
     const result = await model.generateContent(prompt)
     const analysis = JSON.parse(result.response.text())
