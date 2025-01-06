@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { agentService } from "@/services/AgentService";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { IndustryContext } from "@/components/teams/IndustryContext";
 import { TeamCard } from "@/components/teams/TeamCard";
-import { DocumentUpload } from "@/components/teams/DocumentUpload";
-import { DocumentGenerator } from "@/components/teams/DocumentGenerator";
-import { DocumentAssistant } from "@/components/teams/DocumentAssistant";
-import { DocumentViewer } from "@/components/teams/DocumentViewer";
-import { UXAnalyzer } from "@/components/teams/UXAnalyzer";
 import { CreateTeamDialog } from "@/components/teams/CreateTeamDialog";
-import { captureAndAnalyzeScreen } from "@/utils/screenshotAnalysis";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Teams = () => {
   const teams = agentService.getTeams();
@@ -19,53 +12,10 @@ export const Teams = () => {
   const [industry, setIndustry] = useState('real_estate');
   const [region, setRegion] = useState('QLD');
   const [templates, setTemplates] = useState<any[]>([]);
-  const [context, setContext] = useState<any>(null);
 
   useEffect(() => {
-    fetchBusinessContext();
     fetchTemplates();
-    analyzeCurrentPage();
   }, [industry, region]);
-
-  const analyzeCurrentPage = async () => {
-    try {
-      const analysis = await captureAndAnalyzeScreen('teams-page');
-      console.log('Teams page analysis:', analysis);
-      
-      toast({
-        title: "UX Analysis Complete",
-        description: "The teams page has been analyzed for UX improvements.",
-      });
-    } catch (error) {
-      console.error('Error analyzing teams page:', error);
-      toast({
-        title: "Analysis Error",
-        description: "Failed to analyze the teams page.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const fetchBusinessContext = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('business_context')
-        .select('*')
-        .eq('industry', industry)
-        .eq('region', region)
-        .maybeSingle();
-
-      if (error) throw error;
-      setContext(data);
-    } catch (error) {
-      console.error('Error fetching business context:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch business context",
-        variant: "destructive",
-      });
-    }
-  };
 
   const fetchTemplates = async () => {
     try {
@@ -87,8 +37,6 @@ export const Teams = () => {
   };
 
   const handleTeamCreated = () => {
-    // Refresh the teams list
-    fetchBusinessContext();
     fetchTemplates();
   };
 
@@ -127,25 +75,6 @@ export const Teams = () => {
           <CreateTeamDialog onTeamCreated={handleTeamCreated} />
         </div>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <DocumentAssistant />
-        <DocumentGenerator />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6">
-        <DocumentUpload />
-        <DocumentViewer />
-        <UXAnalyzer />
-      </div>
-
-      {templates.length > 0 && (
-        <IndustryContext
-          templates={templates}
-          industry={industry}
-          region={region}
-        />
-      )}
 
       <div className="grid gap-6">
         {teams.map((team) => (
