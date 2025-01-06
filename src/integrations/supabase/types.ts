@@ -9,7 +9,104 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      agents: {
+        Row: {
+          capabilities: Json | null
+          created_at: string | null
+          id: string
+          last_active: string | null
+          name: string
+          role: string
+          status: string | null
+        }
+        Insert: {
+          capabilities?: Json | null
+          created_at?: string | null
+          id?: string
+          last_active?: string | null
+          name: string
+          role: string
+          status?: string | null
+        }
+        Update: {
+          capabilities?: Json | null
+          created_at?: string | null
+          id?: string
+          last_active?: string | null
+          name?: string
+          role?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
+      knowledge_base: {
+        Row: {
+          confidence: number | null
+          content: Json
+          created_at: string | null
+          id: string
+          source_session_id: string | null
+          topic: string
+          verified: boolean | null
+        }
+        Insert: {
+          confidence?: number | null
+          content: Json
+          created_at?: string | null
+          id?: string
+          source_session_id?: string | null
+          topic: string
+          verified?: boolean | null
+        }
+        Update: {
+          confidence?: number | null
+          content?: Json
+          created_at?: string | null
+          id?: string
+          source_session_id?: string | null
+          topic?: string
+          verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_base_source_session_id_fkey"
+            columns: ["source_session_id"]
+            isOneToOne: false
+            referencedRelation: "scraping_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scraping_sessions: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string
+          screenshots: string[] | null
+          status: string | null
+          updated_at: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          screenshots?: string[] | null
+          status?: string | null
+          updated_at?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          screenshots?: string[] | null
+          status?: string | null
+          updated_at?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
