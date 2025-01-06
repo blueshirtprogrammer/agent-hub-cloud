@@ -1,7 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.2.1";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
 
@@ -25,6 +24,7 @@ serve(async (req) => {
       throw new Error('Invalid image data format');
     }
 
+    console.log('Starting analysis with Gemini Pro Vision...');
     const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
 
     const prompt = `As a UX/UI expert specializing in real estate software interfaces, analyze this screenshot.
@@ -62,6 +62,7 @@ serve(async (req) => {
       "priority_changes": ["Ordered list of recommended changes"]
     }`;
 
+    console.log('Sending request to Gemini...');
     const result = await model.generateContent([
       prompt,
       {
@@ -77,6 +78,7 @@ serve(async (req) => {
     }
 
     const response = await result.response;
+    console.log('Received response from Gemini');
     const analysis = JSON.parse(response.text());
 
     // Update the analysis in Supabase
@@ -85,6 +87,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
     );
 
+    console.log('Updating analysis in database...');
     const { error: updateError } = await supabase
       .from('ux_analysis')
       .update({ analysis_result: analysis })
