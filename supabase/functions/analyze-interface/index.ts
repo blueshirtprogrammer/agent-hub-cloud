@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Initialize Gemini with 2.0-flash-exp model
+// Initialize Gemini with the latest Flash Thinking model for better reasoning
 const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
 
 // Initialize Supabase Admin Client
@@ -41,8 +41,8 @@ Deno.serve(async (req) => {
       throw sessionError
     }
 
-    // Use Gemini 2.0-flash-exp to analyze the interface
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+    // Use the latest Gemini Flash Thinking model for enhanced reasoning
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-thinking-exp-1219' })
 
     const prompt = `Analyze this screenshot of the Relevance AI interface. 
     Please identify and describe:
