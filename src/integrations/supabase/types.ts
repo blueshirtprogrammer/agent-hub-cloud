@@ -66,6 +66,36 @@ export type Database = {
         }
         Relationships: []
       }
+      document_analysis: {
+        Row: {
+          analysis_result: Json | null
+          created_at: string | null
+          file_name: string
+          file_path: string
+          id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          analysis_result?: Json | null
+          created_at?: string | null
+          file_name: string
+          file_path: string
+          id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          analysis_result?: Json | null
+          created_at?: string | null
+          file_name?: string
+          file_path?: string
+          id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       industry_templates: {
         Row: {
           category: string

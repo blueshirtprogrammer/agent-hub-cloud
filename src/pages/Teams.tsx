@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { IndustryContext } from "@/components/teams/IndustryContext";
 import { TeamCard } from "@/components/teams/TeamCard";
+import { DocumentUpload } from "@/components/teams/DocumentUpload";
 
 export const Teams = () => {
   const teams = agentService.getTeams();
@@ -94,6 +95,9 @@ export const Teams = () => {
         </div>
       </div>
       
+      {/* Document Upload Section */}
+      <DocumentUpload />
+
       {/* Industry Context Section */}
       {templates.length > 0 && (
         <IndustryContext
