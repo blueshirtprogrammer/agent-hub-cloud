@@ -704,7 +704,12 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          is_leadership: boolean | null
+          max_assignments: number | null
           name: string
+          permissions: Json | null
+          priority: number | null
+          reporting_to: string | null
           required_tools: Json | null
           team_id: string | null
         }
@@ -713,7 +718,12 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_leadership?: boolean | null
+          max_assignments?: number | null
           name: string
+          permissions?: Json | null
+          priority?: number | null
+          reporting_to?: string | null
           required_tools?: Json | null
           team_id?: string | null
         }
@@ -722,11 +732,23 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_leadership?: boolean | null
+          max_assignments?: number | null
           name?: string
+          permissions?: Json | null
+          priority?: number | null
+          reporting_to?: string | null
           required_tools?: Json | null
           team_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "team_roles_reporting_to_fkey"
+            columns: ["reporting_to"]
+            isOneToOne: false
+            referencedRelation: "team_roles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "team_roles_team_id_fkey"
             columns: ["team_id"]
