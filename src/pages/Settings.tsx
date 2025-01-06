@@ -5,7 +5,7 @@ import { PlatformIntegrations } from "@/components/integration/platforms/Platfor
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Settings2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const Settings = () => {
   const { toast } = useToast();
@@ -49,15 +49,22 @@ export const Settings = () => {
             Configure your integrations and platform preferences
           </p>
         </div>
-        <Tooltip content="Save all changes">
-          <Button 
-            onClick={handleSaveChanges}
-            className="bg-primary hover:bg-primary/90 text-white font-semibold"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Save Changes
-          </Button>
-        </Tooltip>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                onClick={handleSaveChanges}
+                className="bg-primary hover:bg-primary/90 text-white font-semibold"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save Changes
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Save all changes</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <div className="grid gap-6">
