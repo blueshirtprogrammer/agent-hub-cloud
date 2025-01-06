@@ -1,6 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.1.3";
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.2.1";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
@@ -25,7 +25,7 @@ serve(async (req) => {
       throw new Error('Invalid image data format');
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro-vision' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
 
     const prompt = `As a UX/UI expert specializing in real estate software interfaces, analyze this screenshot.
     Consider the following aspects:
