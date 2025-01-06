@@ -36,13 +36,17 @@ export const WorkflowManagement = () => {
       if (error) throw error;
       if (!data) throw new Error('Workflow template not found');
       
-      // Safely cast the JSON data to our expected types
+      // First cast to unknown, then to our expected type to safely handle the JSON conversion
+      const stages = (data.stages as unknown) as WorkflowStage[];
+      const requiredDocs = (data.required_documents as unknown) as string[];
+      
+      // Construct the template with proper type casting
       const template: WorkflowTemplate = {
         id: data.id,
         name: data.name,
         description: data.description,
-        stages: data.stages as WorkflowStage[],
-        required_documents: data.required_documents as string[]
+        stages: stages,
+        required_documents: requiredDocs
       };
 
       return template;
