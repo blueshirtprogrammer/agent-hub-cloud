@@ -1,34 +1,45 @@
 import html2canvas from 'html2canvas';
 import { supabase } from "@/integrations/supabase/client";
 
-export const captureAndAnalyzeScreen = async (context: string) => {
+interface AnalysisResult {
+  analysis?: string;
+  error?: string;
+}
+
+export const captureAndAnalyzeScreenshot = async (): Promise<AnalysisResult> => {
   try {
     // Capture the entire page
     const canvas = await html2canvas(document.body);
     const screenshot = canvas.toDataURL('image/png');
 
+    if (!screenshot.startsWith('data:image/png;base64,')) {
+      throw new Error('Invalid screenshot format');
+    }
+
     console.log('Screenshot captured, sending to analysis...');
 
-    // Call the edge function directly
+    // Call the edge function
     const { data, error } = await supabase.functions.invoke('analyze-interface', {
       body: { 
         screenshot,
-        context
+        context: window.location.pathname.slice(1) || 'home'
       }
     });
 
     if (error) {
-      console.error('Analysis error:', error);
-      throw error;
+      console.error('Error from edge function:', error);
+      throw new Error(error.message || 'Failed to analyze interface');
     }
 
     if (!data?.analysis) {
-      throw new Error('No analysis data received');
+      throw new Error('No analysis received from the server');
     }
 
-    return data.analysis;
+    return { analysis: data.analysis };
   } catch (error) {
-    console.error('Error capturing and analyzing screen:', error);
-    throw error;
+    console.error('Screenshot analysis error:', error);
+    return { 
+      error: error instanceof Error ? error.message : 'Failed to analyze interface'
+    };
   }
 };

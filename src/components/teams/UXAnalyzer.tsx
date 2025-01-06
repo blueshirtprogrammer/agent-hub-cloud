@@ -4,30 +4,23 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import html2canvas from 'html2canvas';
-import { supabase } from "@/integrations/supabase/client";
+import { captureAndAnalyzeScreenshot } from "@/utils/screenshotAnalysis";
 
 export const UXAnalyzer = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const captureAndAnalyze = async () => {
+  const handleAnalyze = async () => {
     try {
       setIsAnalyzing(true);
+      const result = await captureAndAnalyzeScreenshot();
       
-      // Capture the entire page
-      const canvas = await html2canvas(document.body);
-      const screenshot = canvas.toDataURL('image/png');
+      if (result.error) {
+        throw new Error(result.error);
+      }
 
-      // Call the edge function
-      const { data: { analysis: result }, error } = await supabase.functions.invoke('analyze-interface', {
-        body: { screenshot, context: 'teams-page' },
-      });
-
-      if (error) throw error;
-
-      setAnalysis(result);
+      setAnalysis(result.analysis);
       toast({
         title: "Analysis Complete",
         description: "UX/UI analysis has been generated successfully.",
@@ -36,9 +29,10 @@ export const UXAnalyzer = () => {
       console.error('Error analyzing interface:', error);
       toast({
         title: "Error",
-        description: "Failed to analyze interface",
+        description: error.message || "Failed to analyze interface. Please try again.",
         variant: "destructive",
       });
+      setAnalysis(null);
     } finally {
       setIsAnalyzing(false);
     }
@@ -55,7 +49,7 @@ export const UXAnalyzer = () => {
       <CardContent>
         <div className="space-y-4">
           <Button 
-            onClick={captureAndAnalyze} 
+            onClick={handleAnalyze} 
             disabled={isAnalyzing}
             className="w-full"
           >
