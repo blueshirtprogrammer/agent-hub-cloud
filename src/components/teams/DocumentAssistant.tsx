@@ -98,7 +98,7 @@ export const DocumentAssistant = () => {
               ))}
             </div>
           )}
-        </CardContent>
+        </form>
       </CardContent>
     </Card>
   )
