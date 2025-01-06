@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TaskForm } from "@/components/tasks/TaskForm";
 import { TaskList } from "@/components/tasks/TaskList";
 import { Task } from "@/types/tasks";
+import { Database } from "@/integrations/supabase/types";
 
 export const Tasks = () => {
   const { toast } = useToast();
@@ -39,7 +40,20 @@ export const Tasks = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTasks(data || []);
+
+      // Transform the data to match the Task interface
+      const transformedTasks: Task[] = (data || []).map(task => ({
+        id: task.id,
+        title: task.title,
+        description: task.description || null,
+        priority: task.priority as Task['priority'] || 'medium',
+        due_date: task.due_date || null,
+        status: task.status as Task['status'] || 'pending',
+        created_at: task.created_at || null,
+        updated_at: task.updated_at || null
+      }));
+
+      setTasks(transformedTasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
       toast({
