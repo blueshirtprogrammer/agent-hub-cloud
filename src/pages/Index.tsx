@@ -1,5 +1,4 @@
 import React from "react";
-import { IntegrationRequest } from "@/components/integration/IntegrationRequest";
 import { TeamCard } from "@/components/teams/TeamCard";
 import { agentService } from "@/services/AgentService";
 
@@ -11,8 +10,6 @@ const Index = () => {
       <h1 className="text-2xl font-semibold">Agent Teams</h1>
       
       <div className="grid gap-6">
-        <IntegrationRequest />
-        
         {teams.map((team) => (
           <TeamCard key={team.id} team={team} />
         ))}

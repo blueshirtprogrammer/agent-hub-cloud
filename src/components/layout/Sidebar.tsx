@@ -7,6 +7,8 @@ import {
   ClipboardList,
   Home,
   Settings,
+  CreditCard,
+  Workflow,
 } from "lucide-react";
 
 const menuItems = [
@@ -15,6 +17,7 @@ const menuItems = [
   { icon: BrainCircuit, label: "Teams", path: "/teams" },
   { icon: ClipboardList, label: "Tasks", path: "/tasks" },
   { icon: Home, label: "Properties", path: "/properties" },
+  { icon: CreditCard, label: "Resources", path: "/resources" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
