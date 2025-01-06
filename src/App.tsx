@@ -1,37 +1,26 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
-import { DashboardLayout } from "./components/layout/DashboardLayout";
-import { Dashboard } from "./pages/Dashboard";
-import { Teams } from "./pages/Teams";
-import { Tasks } from "./pages/Tasks";
-import { Properties } from "./pages/Properties";
-import { Settings } from "./pages/Settings";
-import { Resources } from "./pages/Resources";
-import { DocumentManagement } from "./pages/DocumentManagement";
-import { Changelog } from "./pages/Changelog";
-import { ProjectBrief } from "./pages/ProjectBrief";
-import Index from "./pages/Index";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Tasks } from "@/pages/Tasks";
+import { WorkflowManagement } from "@/pages/WorkflowManagement";
 
 function App() {
   return (
-    <React.StrictMode>
-      <Router>
-        <Routes>
-          <Route path="/" element={<DashboardLayout><Outlet /></DashboardLayout>}>
-            <Route index element={<Dashboard />} />
-            <Route path="agents" element={<Index />} />
-            <Route path="teams" element={<Teams />} />
-            <Route path="tasks" element={<Tasks />} />
-            <Route path="properties" element={<Properties />} />
-            <Route path="resources" element={<Resources />} />
-            <Route path="documents" element={<DocumentManagement />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="changelog" element={<Changelog />} />
-            <Route path="brief" element={<ProjectBrief />} />
-          </Route>
-        </Routes>
-      </Router>
-    </React.StrictMode>
+    <Router>
+      <Routes>
+        <Route path="/" element={<DashboardLayout />}>
+          <Route index element={<Tasks />} />
+          <Route
+            path="/workflow"
+            element={
+              <DashboardLayout>
+                <WorkflowManagement />
+              </DashboardLayout>
+            }
+          />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 

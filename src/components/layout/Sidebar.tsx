@@ -1,56 +1,51 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Users,
-  BrainCircuit,
-  ClipboardList,
-  Home,
-  Settings,
-  CreditCard,
-  FileText,
-  Book,
-} from "lucide-react";
-
-const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: Users, label: "Agents", path: "/agents" },
-  { icon: BrainCircuit, label: "Teams", path: "/teams" },
-  { icon: ClipboardList, label: "Tasks", path: "/tasks" },
-  { icon: Home, label: "Properties", path: "/properties" },
-  { icon: FileText, label: "Documents", path: "/documents" },
-  { icon: CreditCard, label: "Resources", path: "/resources" },
-  { icon: Book, label: "Project Brief", path: "/brief" },
-  { icon: Settings, label: "Settings", path: "/settings" },
-];
+import { Link } from "react-router-dom";
+import { Home, Settings, Users, FileText, ListChecks } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const Sidebar = () => {
-  const location = useLocation();
-
   return (
-    <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-xl">
-      <div className="flex h-full flex-col">
-        <div className="flex h-16 items-center px-6">
-          <h2 className="text-lg font-semibold">AI Agent Hub</h2>
-        </div>
-        <nav className="flex-1 space-y-1 px-3 py-4">
-          {menuItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground ${
-                  isActive ? "bg-accent text-accent-foreground" : ""
-                }`}
-              >
-                <item.icon className="mr-3 h-5 w-5" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+    <aside className="hidden lg:flex h-screen w-64 flex-col fixed left-0 top-0 bottom-0 bg-background border-r">
+      <div className="p-6">
+        <h1 className="text-xl font-semibold">Dashboard</h1>
       </div>
+      <nav className="flex-1 space-y-1 p-2">
+        <Link
+          to="/"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+        >
+          <Home className="h-4 w-4" />
+          Home
+        </Link>
+        <Link
+          to="/tasks"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+        >
+          <FileText className="h-4 w-4" />
+          Tasks
+        </Link>
+        <Link
+          to="/team"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+        >
+          <Users className="h-4 w-4" />
+          Team
+        </Link>
+        <Link
+          to="/workflow"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+        >
+          <ListChecks className="h-4 w-4" />
+          Workflow Management
+        </Link>
+        <Link
+          to="/settings"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+        >
+          <Settings className="h-4 w-4" />
+          Settings
+        </Link>
+      </nav>
     </aside>
   );
 };

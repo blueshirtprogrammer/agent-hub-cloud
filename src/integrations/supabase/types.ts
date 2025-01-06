@@ -366,6 +366,88 @@ export type Database = {
           },
         ]
       }
+      listing_workflow_stages: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          listing_id: string | null
+          required_documents: Json | null
+          stage_name: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          required_documents?: Json | null
+          stage_name: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          required_documents?: Json | null
+          stage_name?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_workflow_stages_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offer_system_configurations: {
+        Row: {
+          backup_offers_enabled: boolean | null
+          created_at: string | null
+          id: string
+          is_on_market: boolean | null
+          listing_id: string | null
+          standard_conditions: Json | null
+          timer_end_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          backup_offers_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          is_on_market?: boolean | null
+          listing_id?: string | null
+          standard_conditions?: Json | null
+          timer_end_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          backup_offers_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          is_on_market?: boolean | null
+          listing_id?: string | null
+          standard_conditions?: Json | null
+          timer_end_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offer_system_configurations_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       open_home_schedules: {
         Row: {
           created_at: string | null
@@ -953,6 +1035,11 @@ export type Database = {
     }
     Enums: {
       billing_tier: "basic" | "pro" | "enterprise"
+      document_requirement_status:
+        | "pending"
+        | "received"
+        | "verified"
+        | "not_required"
       document_type:
         | "form_6"
         | "rates_notice"
