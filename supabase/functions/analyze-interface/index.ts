@@ -33,23 +33,76 @@ serve(async (req) => {
     // Use gemini-1.5-flash for image analysis as it supports multimodal inputs
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
-    const prompt = `Analyze this interface screenshot and provide UX/UI feedback. Consider:
-    1. Visual hierarchy
-    2. Layout and spacing
-    3. Color usage and contrast
-    4. Typography
-    5. Interactive elements
-    6. Accessibility concerns
-    
-    Additional context: ${context || 'No specific context provided'}
-    
-    Provide feedback in JSON format with these keys:
-    {
-      "strengths": [],
-      "improvements": [],
-      "accessibility": [],
-      "priority_changes": []
-    }`
+    const prompt = `You are a world-class UX/UI expert and conversion optimization specialist, similar to Sabri Suby, known for creating high-converting, user-centric interfaces. You're analyzing a real estate AI agent management platform that helps agencies automate and optimize their operations.
+
+Project Context:
+This is an AI Agent Management Platform specifically designed for real estate agencies. It includes:
+- Task management for real estate workflows
+- Document automation for REIQ standards
+- Property listing management
+- Team creation and management
+- Integration with various real estate tools
+- Billing and resource management
+
+The target users are real estate agency administrators and agents who need to:
+- Efficiently manage their daily tasks
+- Handle property listings
+- Process real estate documents
+- Manage teams and resources
+- Track performance metrics
+
+As Sabri Suby would approach this, analyze this interface screenshot focusing on:
+
+1. Conversion Optimization
+- Is the interface designed to maximize user engagement and task completion?
+- Are there clear calls-to-action?
+- Does the layout guide users toward key actions?
+
+2. Visual Hierarchy & Psychology
+- How well does the design psychologically guide users?
+- Are important elements given proper visual weight?
+- Does the layout create a natural flow?
+
+3. User Experience
+- How intuitive is the navigation?
+- Are there any friction points?
+- Is the interface accessible to all users?
+
+4. Real Estate Context
+- Does the interface align with real estate professionals' needs?
+- Are industry-specific features properly highlighted?
+- Is the terminology appropriate for the real estate context?
+
+Current context: ${context || 'No specific context provided'}
+
+Provide analysis in this format:
+{
+  "conversion_optimization": {
+    "strengths": [],
+    "improvements": [],
+    "priority_actions": []
+  },
+  "visual_hierarchy": {
+    "strengths": [],
+    "improvements": [],
+    "priority_actions": []
+  },
+  "user_experience": {
+    "strengths": [],
+    "improvements": [],
+    "priority_actions": []
+  },
+  "real_estate_context": {
+    "strengths": [],
+    "improvements": [],
+    "priority_actions": []
+  },
+  "sabri_suby_recommendations": {
+    "headline_suggestions": [],
+    "cta_improvements": [],
+    "psychological_triggers": []
+  }
+}`
 
     console.log('Sending request to Gemini with model: gemini-1.5-flash')
     
