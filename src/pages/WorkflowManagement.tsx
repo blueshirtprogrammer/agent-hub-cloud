@@ -30,7 +30,15 @@ export const WorkflowManagement = () => {
         .single();
 
       if (error) throw error;
-      return data as WorkflowTemplate;
+      
+      // Cast the JSON data to the correct type
+      const typedData = {
+        ...data,
+        stages: data.stages as WorkflowTemplate['stages'],
+        required_documents: data.required_documents as string[]
+      } as WorkflowTemplate;
+
+      return typedData;
     },
   });
 

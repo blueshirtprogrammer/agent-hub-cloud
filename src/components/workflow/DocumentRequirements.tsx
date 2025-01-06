@@ -41,7 +41,7 @@ export const DocumentRequirements = ({ documents }: DocumentRequirementsProps) =
     switch (status) {
       case 'verified':
         return (
-          <Badge variant="success" className="bg-green-500">
+          <Badge variant="default" className="bg-green-500">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Verified
           </Badge>

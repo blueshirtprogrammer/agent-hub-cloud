@@ -10,14 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<DashboardLayout />}>
           <Route index element={<Tasks />} />
-          <Route
-            path="/workflow"
-            element={
-              <DashboardLayout>
-                <WorkflowManagement />
-              </DashboardLayout>
-            }
-          />
+          <Route path="/workflow" element={<WorkflowManagement />} />
         </Route>
       </Routes>
     </Router>
