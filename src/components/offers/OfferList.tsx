@@ -9,6 +9,16 @@ interface OfferListProps {
   listingId: string;
 }
 
+interface Offer {
+  id: string;
+  amount: number;
+  created_at: string;
+  status: 'accepted' | 'rejected' | 'pending';
+  finance_days: number;
+  building_pest_days: number;
+  special_conditions: string[];
+}
+
 export const OfferList = ({ listingId }: OfferListProps) => {
   const { data: offers, isLoading } = useQuery({
     queryKey: ['offers', listingId],
@@ -20,7 +30,7 @@ export const OfferList = ({ listingId }: OfferListProps) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as Offer[];
     },
   });
 
