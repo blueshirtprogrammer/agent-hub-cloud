@@ -45,15 +45,26 @@ Description: ${description}`;
     console.log('Raw Gemini response:', response.text())
     
     // Clean and parse the response
-    const cleanedResponse = response.text()
+    let cleanedResponse = response.text()
       .replace(/```json/gi, '')
       .replace(/```/g, '')
+      .replace(/^JSON\s*/, '') // Remove "JSON" prefix if present
       .trim()
     
-    const parsedResponse = JSON.parse(cleanedResponse)
-    console.log('Parsed response:', parsedResponse)
+    // If the response starts with a newline and {, remove everything before the first {
+    cleanedResponse = cleanedResponse.replace(/^[\s\S]*?({[\s\S]*})[\s\S]*$/, '$1')
     
-    return parsedResponse
+    console.log('Cleaned response:', cleanedResponse)
+    
+    try {
+      const parsedResponse = JSON.parse(cleanedResponse)
+      console.log('Parsed response:', parsedResponse)
+      return parsedResponse
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError)
+      console.error('Failed to parse response:', cleanedResponse)
+      throw new Error(`Failed to parse JSON response: ${parseError.message}`)
+    }
   } catch (error) {
     console.error('Error in analyzeTeamRequirements:', error)
     throw new Error(`Failed to analyze team requirements: ${error.message}`)
