@@ -1,4 +1,4 @@
-import { ModelRouter, TaskContext } from './ModelRouter';
+import { ModelRouter, TaskContext, TaskType } from './ModelRouter';
 import { supabase } from "@/integrations/supabase/client";
 
 export type ModelResponse = {
