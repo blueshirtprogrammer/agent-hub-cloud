@@ -39,6 +39,66 @@ export type Database = {
         }
         Relationships: []
       }
+      business_context: {
+        Row: {
+          created_at: string | null
+          id: string
+          industry: Database["public"]["Enums"]["industry_sector"]
+          region: string
+          specific_context: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          industry?: Database["public"]["Enums"]["industry_sector"]
+          region: string
+          specific_context?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          industry?: Database["public"]["Enums"]["industry_sector"]
+          region?: string
+          specific_context?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      industry_templates: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          industry: Database["public"]["Enums"]["industry_sector"]
+          name: string
+          template_data: Json
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          industry: Database["public"]["Enums"]["industry_sector"]
+          name: string
+          template_data?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          industry?: Database["public"]["Enums"]["industry_sector"]
+          name?: string
+          template_data?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       knowledge_base: {
         Row: {
           confidence: number | null
@@ -196,6 +256,12 @@ export type Database = {
     }
     Enums: {
       billing_tier: "basic" | "pro" | "enterprise"
+      industry_sector:
+        | "real_estate"
+        | "finance"
+        | "technology"
+        | "healthcare"
+        | "education"
     }
     CompositeTypes: {
       [_ in never]: never
