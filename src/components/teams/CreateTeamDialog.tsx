@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PlusCircle } from "lucide-react";
@@ -14,6 +15,8 @@ export const CreateTeamDialog = ({ onTeamCreated }: { onTeamCreated: () => void 
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [billingTier, setBillingTier] = React.useState<BillingTier>("basic");
+  const [computeCredits, setComputeCredits] = React.useState(1000);
+  const [serverHours, setServerHours] = React.useState(100);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,6 +29,8 @@ export const CreateTeamDialog = ({ onTeamCreated }: { onTeamCreated: () => void 
           name,
           description,
           billing_tier: billingTier,
+          compute_credits: computeCredits,
+          server_hours: serverHours,
           requirements: {
             license: true,
             compliance: true
@@ -78,11 +83,12 @@ export const CreateTeamDialog = ({ onTeamCreated }: { onTeamCreated: () => void 
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Input
+            <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter team description"
+              rows={3}
             />
           </div>
           <div className="space-y-2">
@@ -97,6 +103,28 @@ export const CreateTeamDialog = ({ onTeamCreated }: { onTeamCreated: () => void 
                 <SelectItem value="enterprise">Enterprise</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="computeCredits">Compute Credits</Label>
+              <Input
+                id="computeCredits"
+                type="number"
+                min={0}
+                value={computeCredits}
+                onChange={(e) => setComputeCredits(parseInt(e.target.value))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="serverHours">Server Hours</Label>
+              <Input
+                id="serverHours"
+                type="number"
+                min={0}
+                value={serverHours}
+                onChange={(e) => setServerHours(parseInt(e.target.value))}
+              />
+            </div>
           </div>
           <Button type="submit" className="w-full">Create Team</Button>
         </form>

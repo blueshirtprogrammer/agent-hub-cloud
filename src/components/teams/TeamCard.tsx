@@ -4,6 +4,7 @@ import { Users } from "lucide-react";
 import { TeamRoleManager } from "./TeamRoleManager";
 import { TeamResources } from "./TeamResources";
 import { TeamRolesTable } from "./TeamRolesTable";
+import { TeamConfigurationForm } from "./TeamConfigurationForm";
 import type { AgentTeam } from "@/types/agents";
 
 interface TeamCardProps {
@@ -11,6 +12,12 @@ interface TeamCardProps {
 }
 
 export const TeamCard = ({ team }: TeamCardProps) => {
+  const [refreshKey, setRefreshKey] = React.useState(0);
+
+  const handleConfigurationUpdated = () => {
+    setRefreshKey(prev => prev + 1);
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -25,9 +32,15 @@ export const TeamCard = ({ team }: TeamCardProps) => {
       <CardContent>
         <div className="space-y-6">
           <TeamResources 
+            key={refreshKey}
             computeCredits={team.computeCredits || 5000}
             serverHours={team.serverHours || 200}
             billingTier={team.billingTier || 'pro'}
+          />
+          
+          <TeamConfigurationForm 
+            teamId={team.id} 
+            onConfigurationUpdated={handleConfigurationUpdated}
           />
           
           <TeamRoleManager teamId={team.id} />
