@@ -6,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Settings2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const Settings = () => {
   const { toast } = useToast();
+  const [analysis, setAnalysis] = React.useState<string | null>(null);
 
   useEffect(() => {
     const analyzePage = async () => {
@@ -16,7 +18,8 @@ export const Settings = () => {
         const result = await captureAndAnalyzeScreenshot();
         console.log('Settings analysis:', result);
         
-        if (!result.error) {
+        if (!result.error && result.analysis) {
+          setAnalysis(result.analysis);
           toast({
             title: "UX Analysis Complete",
             description: "The settings page has been analyzed for UX improvements.",
@@ -24,6 +27,11 @@ export const Settings = () => {
         }
       } catch (error) {
         console.error('Error analyzing settings:', error);
+        toast({
+          title: "Analysis Error",
+          description: "Failed to analyze the interface. Please try again.",
+          variant: "destructive",
+        });
       }
     };
 
@@ -70,6 +78,25 @@ export const Settings = () => {
       </div>
 
       <div className="grid gap-6">
+        {analysis && (
+          <Card className="border-2 border-primary/10 shadow-lg">
+            <CardHeader className="bg-primary/5">
+              <CardTitle className="text-lg font-semibold">UX Analysis Results</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[200px] w-full rounded-md">
+                <div className="space-y-2 p-4">
+                  {analysis.split('\n').map((line, index) => (
+                    <p key={index} className="text-sm">
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="border-2 border-primary/10 shadow-lg">
           <CardHeader className="bg-primary/5">
             <div className="flex items-center gap-2">
