@@ -7,6 +7,7 @@ class AgentService {
 
   constructor() {
     this.initializeRealEstateTeam();
+    this.initializeIntegrationTeam();
   }
 
   private initializeRealEstateTeam() {
@@ -66,6 +67,100 @@ class AgentService {
     };
 
     this.teams.set(realEstateTeam.id, realEstateTeam);
+  }
+
+  private initializeIntegrationTeam() {
+    const integrationTeam: AgentTeam = {
+      id: crypto.randomUUID(),
+      name: "Integration Research & Development Team",
+      specialization: "Automated tool integration and API implementation",
+      orchestrators: [
+        {
+          id: crypto.randomUUID(),
+          name: "Integration Orchestrator",
+          role: "Integration workflow management and coordination",
+          capabilities: ["workflow_management", "task_distribution", "integration_planning"],
+          status: "idle"
+        }
+      ],
+      agents: [
+        {
+          id: crypto.randomUUID(),
+          name: "API Documentation Researcher",
+          role: "Research and analyze API documentation",
+          capabilities: ["web_scraping", "documentation_analysis", "api_specification_extraction"],
+          status: "idle"
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "Integration Developer",
+          role: "Implement and test integrations",
+          capabilities: ["api_integration", "webhook_setup", "authentication_management"],
+          status: "idle"
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "Tool Database Manager",
+          role: "Maintain tool database and assign capabilities",
+          capabilities: ["database_management", "capability_mapping", "integration_testing"],
+          status: "idle"
+        }
+      ],
+      computeCredits: 15000,
+      serverHours: 750,
+      billingTier: "professional"
+    };
+
+    this.teams.set(integrationTeam.id, integrationTeam);
+  }
+
+  async analyzeIntegrationRequest(description: string) {
+    console.log('Analyzing integration request:', description);
+    
+    const capabilities = await this.analyzeToolRequirements(description);
+    const integrationTeam = Array.from(this.teams.values())
+      .find(team => team.name === "Integration Research & Development Team");
+      
+    if (!integrationTeam) {
+      throw new Error("Integration team not found");
+    }
+
+    const task = await this.createTask(description, 'high');
+    
+    // Assign to researcher first
+    const researcher = integrationTeam.agents.find(
+      agent => agent.role.includes("Research")
+    );
+    if (researcher) {
+      task.assignedAgents = [researcher];
+      this.updateTask(task);
+    }
+
+    return {
+      task,
+      team: integrationTeam,
+      capabilities
+    };
+  }
+
+  private async analyzeToolRequirements(description: string): Promise<string[]> {
+    // Extract key integration requirements from the description
+    const requirements: string[] = [];
+    
+    if (description.toLowerCase().includes('email')) {
+      requirements.push('email_integration');
+    }
+    if (description.toLowerCase().includes('report')) {
+      requirements.push('reporting');
+    }
+    if (description.toLowerCase().includes('zapier')) {
+      requirements.push('zapier_integration');
+    }
+    if (description.toLowerCase().includes('api')) {
+      requirements.push('direct_api_integration');
+    }
+    
+    return requirements;
   }
 
   createAgent(name: string, role: AgentRole, capabilities: string[], parentId?: string): Agent {
