@@ -15,6 +15,7 @@ interface TeamConfigurationFormProps {
 }
 
 export const TeamConfigurationForm = ({ teamId, onConfigurationUpdated }: TeamConfigurationFormProps) => {
+  const [name, setName] = React.useState<string>("");
   const [computeCredits, setComputeCredits] = React.useState<number>(1000);
   const [serverHours, setServerHours] = React.useState<number>(100);
   const [billingTier, setBillingTier] = React.useState<'basic' | 'pro' | 'enterprise'>('basic');
@@ -38,12 +39,14 @@ export const TeamConfigurationForm = ({ teamId, onConfigurationUpdated }: TeamCo
       if (error) throw error;
 
       if (data) {
+        setName(data.name);
         setComputeCredits(data.compute_credits || 1000);
         setServerHours(data.server_hours || 100);
         setBillingTier(data.billing_tier || 'basic');
         setIsActive(data.active !== false);
       } else {
-        // If no configuration exists, we'll keep the default values
+        // If no configuration exists, we'll set a default name
+        setName(`Team ${teamId.slice(0, 8)}`);
         toast({
           title: "No configuration found",
           description: "Using default configuration values",
@@ -69,6 +72,7 @@ export const TeamConfigurationForm = ({ teamId, onConfigurationUpdated }: TeamCo
         .from('team_configurations')
         .upsert({
           id: teamId,
+          name,
           compute_credits: computeCredits,
           server_hours: serverHours,
           billing_tier: billingTier,
@@ -118,6 +122,16 @@ export const TeamConfigurationForm = ({ teamId, onConfigurationUpdated }: TeamCo
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Team Name</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="computeCredits">Compute Credits</Label>
