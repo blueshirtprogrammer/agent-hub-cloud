@@ -7,16 +7,19 @@ import { WorkflowStages } from "@/components/workflow/WorkflowStages";
 import { DocumentRequirements } from "@/components/workflow/DocumentRequirements";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
+
+interface WorkflowStage {
+  name: string;
+  title: string;
+  required_documents: string[];
+}
 
 interface WorkflowTemplate {
   id: string;
   name: string;
   description: string | null;
-  stages: {
-    name: string;
-    title: string;
-    required_documents: string[];
-  }[];
+  stages: WorkflowStage[];
   required_documents: string[];
 }
 
@@ -33,7 +36,16 @@ export const WorkflowManagement = () => {
       if (error) throw error;
       if (!data) throw new Error('Workflow template not found');
       
-      return data as WorkflowTemplate;
+      // Safely cast the JSON data to our expected types
+      const template: WorkflowTemplate = {
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        stages: data.stages as WorkflowStage[],
+        required_documents: data.required_documents as string[]
+      };
+
+      return template;
     },
   });
 
