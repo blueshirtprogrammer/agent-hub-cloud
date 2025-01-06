@@ -8,6 +8,7 @@ import { TeamCard } from "@/components/teams/TeamCard";
 import { DocumentUpload } from "@/components/teams/DocumentUpload";
 import { DocumentGenerator } from "@/components/teams/DocumentGenerator";
 import { DocumentAssistant } from "@/components/teams/DocumentAssistant";
+import { DocumentViewer } from "@/components/teams/DocumentViewer";
 import { CreateTeamDialog } from "@/components/teams/CreateTeamDialog";
 
 export const Teams = () => {
@@ -112,6 +113,7 @@ export const Teams = () => {
 
       <div className="grid grid-cols-1 gap-6">
         <DocumentUpload />
+        <DocumentViewer />
       </div>
 
       {templates.length > 0 && (
