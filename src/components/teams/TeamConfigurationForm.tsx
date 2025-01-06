@@ -8,6 +8,9 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Settings2 } from "lucide-react";
+import type { Database } from "@/integrations/supabase/types";
+
+type TeamConfiguration = Database['public']['Tables']['team_configurations']['Insert'];
 
 interface TeamConfigurationFormProps {
   teamId: string;
@@ -68,16 +71,18 @@ export const TeamConfigurationForm = ({ teamId, onConfigurationUpdated }: TeamCo
     e.preventDefault();
     
     try {
+      const configData: TeamConfiguration = {
+        id: teamId,
+        name,
+        compute_credits: computeCredits,
+        server_hours: serverHours,
+        billing_tier: billingTier,
+        active: isActive
+      };
+
       const { error } = await supabase
         .from('team_configurations')
-        .upsert({
-          id: teamId,
-          name,
-          compute_credits: computeCredits,
-          server_hours: serverHours,
-          billing_tier: billingTier,
-          active: isActive
-        })
+        .upsert(configData)
         .select()
         .single();
 
