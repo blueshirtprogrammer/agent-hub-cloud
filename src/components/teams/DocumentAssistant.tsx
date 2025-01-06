@@ -4,48 +4,96 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
-import { Loader2, CheckCircle2 } from "lucide-react"
+import { Loader2, CheckCircle2, Search, Download, FileCheck } from "lucide-react"
 
 export const DocumentAssistant = () => {
   const [request, setRequest] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
-  const [steps, setSteps] = useState<{text: string, completed: boolean}[]>([])
+  const [steps, setSteps] = useState<{text: string, completed: boolean, icon?: React.ReactNode}[]>([])
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsProcessing(true)
     setSteps([
-      { text: "Analyzing request...", completed: false },
-      { text: "Identifying required documents...", completed: false },
-      { text: "Retrieving templates...", completed: false },
-      { text: "Creating tasks...", completed: false }
+      { 
+        text: "Checking local templates...", 
+        completed: false,
+        icon: <Search className="h-4 w-4" />
+      },
+      { 
+        text: "Activating web research agent...", 
+        completed: false,
+        icon: <Search className="h-4 w-4" />
+      },
+      { 
+        text: "Processing document request...", 
+        completed: false,
+        icon: <FileCheck className="h-4 w-4" />
+      },
+      { 
+        text: "Storing retrieved document...", 
+        completed: false,
+        icon: <Download className="h-4 w-4" />
+      }
     ])
 
     try {
-      const { data, error } = await supabase.functions.invoke('document-assistant', {
+      // First try the REIQ document assistant
+      const { data: reiqData, error: reiqError } = await supabase.functions.invoke('reiq-document-assistant', {
         body: { request }
       })
 
-      if (error) throw error
+      if (reiqError && reiqError.message.includes("Template not found")) {
+        // Update first step as completed but template not found
+        setSteps(prev => [
+          { ...prev[0], completed: true, text: "Local template not found" },
+          ...prev.slice(1)
+        ])
 
-      // Update steps as they complete
-      setSteps(prev => prev.map((step, index) => ({
-        ...step,
-        completed: true
-      })))
+        // Activate web research agent
+        const { data: researchData, error: researchError } = await supabase.functions.invoke('web-research-agent', {
+          body: { 
+            searchQuery: request,
+            documentType: "REIQ Form" // You can make this more specific based on the request
+          }
+        })
 
-      toast({
-        title: "Request Processed",
-        description: `Tasks created and assigned to ${data.assignedAgent}`,
-      })
+        if (researchError) throw researchError
+
+        // Update steps based on web research success
+        setSteps(prev => prev.map((step, index) => ({
+          ...step,
+          completed: true,
+          text: index === 1 ? "Web research completed successfully" : step.text
+        })))
+
+        toast({
+          title: "Document Retrieved",
+          description: `Document found and stored at ${researchData.filePath}`,
+        })
+      } else if (reiqError) {
+        throw reiqError
+      } else {
+        // Local template was found and processed
+        setSteps(prev => prev.map((step, index) => ({
+          ...step,
+          completed: true,
+          text: index === 0 ? "Local template found and processed" : step.text
+        })))
+
+        toast({
+          title: "Document Processed",
+          description: "Document was found locally and processed successfully",
+        })
+      }
 
       setRequest("")
     } catch (error) {
       console.error('Error:', error)
       toast({
         title: "Error",
-        description: "Failed to process your request",
+        description: error.message || "Failed to process your request",
         variant: "destructive",
       })
     } finally {
@@ -58,13 +106,14 @@ export const DocumentAssistant = () => {
       <CardHeader>
         <CardTitle>Document Assistant</CardTitle>
         <CardDescription>
-          Describe what you need in plain English, and I'll handle the paperwork
+          Describe what you need in plain English, and I'll handle the paperwork. 
+          If I can't find the document locally, I'll search for it online.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Textarea
-            placeholder="e.g., 'I need to schedule a property inspection for 10 Smith Street on January 10th and notify the tenant'"
+            placeholder="e.g., 'I need a REIQ Form 6 - Appointment and reappointment of real estate agent'"
             value={request}
             onChange={(e) => setRequest(e.target.value)}
             className="min-h-[100px]"
@@ -91,7 +140,7 @@ export const DocumentAssistant = () => {
                   {step.completed ? (
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
                   ) : (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    step.icon || <Loader2 className="h-4 w-4 animate-spin" />
                   )}
                   <span className="text-sm text-muted-foreground">{step.text}</span>
                 </div>
