@@ -29,21 +29,32 @@ export const DocumentUpload = () => {
 
     setIsUploading(true);
     setUploadProgress(0);
+
     try {
+      // Start progress animation
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(progressInterval);
+            return prev;
+          }
+          return prev + 5;
+        });
+      }, 100);
+
       // Upload file to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const filePath = `${selectedType}/${crypto.randomUUID()}.${fileExt}`;
       
       const { error: uploadError } = await supabase.storage
         .from('process_documents')
-        .upload(filePath, file, {
-          onUploadProgress: (progress) => {
-            const percent = (progress.loaded / progress.total) * 100;
-            setUploadProgress(percent);
-          }
-        });
+        .upload(filePath, file);
 
       if (uploadError) throw uploadError;
+
+      // Set progress to 100% when upload is complete
+      clearInterval(progressInterval);
+      setUploadProgress(100);
 
       // Create document analysis record
       const { error: dbError } = await supabase
@@ -71,7 +82,9 @@ export const DocumentUpload = () => {
 
       // Reset form
       event.target.value = '';
-      setUploadProgress(0);
+      setTimeout(() => {
+        setUploadProgress(0);
+      }, 1000);
     } catch (error) {
       console.error('Upload error:', error);
       toast({
