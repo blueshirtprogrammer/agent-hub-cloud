@@ -1,4 +1,4 @@
 project_id = "doazsojgacwzpdnltwka"
 
-[functions.analyze-process-document]
+[functions.ux-design-agent]
 verify_jwt = false

@@ -16,6 +16,8 @@ const supabase = createClient(supabaseUrl!, supabaseKey!);
 
 async function analyzeInterface(imageData: string, context: string) {
   try {
+    console.log('Starting interface analysis with context:', context);
+    
     const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
 
     const prompt = `You are a UX/UI design expert specializing in real estate software. 
@@ -41,6 +43,7 @@ async function analyzeInterface(imageData: string, context: string) {
       "priority_changes": ["string"]
     }`;
 
+    console.log('Sending request to Gemini API');
     const result = await model.generateContent([
       prompt,
       {
@@ -54,7 +57,9 @@ async function analyzeInterface(imageData: string, context: string) {
     const response = await result.response;
     const analysis = JSON.parse(response.text());
     
-    // Store analysis in the database for historical tracking
+    console.log('Analysis completed successfully');
+
+    // Store analysis in the database
     const { error: dbError } = await supabase
       .from('ux_analysis')
       .insert({
@@ -63,7 +68,10 @@ async function analyzeInterface(imageData: string, context: string) {
         context: context
       });
 
-    if (dbError) throw dbError;
+    if (dbError) {
+      console.error('Error storing analysis:', dbError);
+      throw dbError;
+    }
 
     return analysis;
   } catch (error) {
@@ -79,18 +87,22 @@ serve(async (req) => {
   }
 
   try {
+    if (req.method !== 'POST') {
+      throw new Error(`HTTP method ${req.method} is not supported.`);
+    }
+
     const { imageData, context } = await req.json();
-    console.log('Analyzing interface with context:', context);
+    console.log('Received request with context:', context);
 
     if (!imageData) {
       throw new Error('No image data provided');
     }
 
     const analysis = await analyzeInterface(imageData, context);
-    console.log('Analysis completed:', analysis);
+    console.log('Analysis completed, sending response');
 
     return new Response(
-      JSON.stringify(analysis),
+      JSON.stringify({ analysis }),
       { 
         headers: { 
           ...corsHeaders,
