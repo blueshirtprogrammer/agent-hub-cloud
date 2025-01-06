@@ -10,13 +10,19 @@ const corsHeaders = {
 const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
+    console.log('Starting document request processing')
     const { request } = await req.json()
     console.log('Processing request:', request)
+
+    if (!request) {
+      throw new Error('No request provided')
+    }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -24,6 +30,7 @@ serve(async (req) => {
     )
 
     // Use Gemini to analyze the request and determine required forms
+    console.log('Analyzing request with Gemini')
     const model = genAI.getGenerativeModel({ model: "gemini-pro" })
     const prompt = `As a real estate document assistant, analyze this request and determine which REIQ form is needed: "${request}". 
                    Return only the form number (e.g., "form_6", "form_9", etc.).`
@@ -33,6 +40,7 @@ serve(async (req) => {
     console.log('Identified form type:', formType)
 
     // Check if template exists in storage
+    console.log('Checking template existence in storage')
     const { data: templateExists, error: templateCheckError } = await supabase
       .storage
       .from('process_documents')
@@ -46,21 +54,11 @@ serve(async (req) => {
     // If template doesn't exist locally, activate web research agent
     if (!templateExists || templateExists.length === 0) {
       console.log('Template not found locally, activating web research agent')
-      
-      const { data: researchResult, error: researchError } = await supabase
-        .functions
-        .invoke('web-research-agent', {
-          body: { 
-            searchQuery: request,
-            documentType: formType
-          }
-        })
-
-      if (researchError) throw researchError
-      console.log('Web research completed:', researchResult)
+      throw new Error('Template not found')
     }
 
     // Create a task for document processing
+    console.log('Creating document processing task')
     const { data: task, error: taskError } = await supabase
       .from('listing_tasks')
       .insert({
@@ -81,6 +79,7 @@ serve(async (req) => {
     }
 
     // Assign to an available agent
+    console.log('Finding available agent')
     const { data: agent, error: agentError } = await supabase
       .from('agents')
       .select('id, name')
@@ -94,6 +93,7 @@ serve(async (req) => {
     }
 
     // Update task with assigned agent
+    console.log('Assigning task to agent')
     const { error: updateError } = await supabase
       .from('listing_tasks')
       .update({ assigned_to: agent.id })
@@ -104,6 +104,7 @@ serve(async (req) => {
       throw updateError
     }
 
+    console.log('Document request processed successfully')
     return new Response(
       JSON.stringify({
         message: 'Document request processed successfully',
@@ -119,6 +120,21 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error processing request:', error)
+    
+    // Special handling for template not found
+    if (error.message === 'Template not found') {
+      return new Response(
+        JSON.stringify({
+          error: 'Template not found',
+          message: error.message
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 404
+        }
+      )
+    }
+
     return new Response(
       JSON.stringify({
         error: 'Failed to process document request',
