@@ -6,6 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CalendarDays, CheckCircle2, Clock, ListTodo } from "lucide-react";
 
+interface TaskWithAgent extends Task {
+  agents: {
+    name: string;
+    role: string;
+  } | null;
+}
+
 interface Task {
   id: string;
   task_type: string;
@@ -15,12 +22,6 @@ interface Task {
   metadata: any;
   listing_id: string;
   assigned_to: string;
-}
-
-interface Agent {
-  id: string;
-  name: string;
-  role: string;
 }
 
 export const Tasks = () => {
@@ -39,7 +40,7 @@ export const Tasks = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as TaskWithAgent[];
     }
   });
 
@@ -100,20 +101,20 @@ export const Tasks = () => {
       </div>
 
       <div className="grid gap-4">
-        {tasks?.map((task: Task) => (
+        {tasks?.map((task: TaskWithAgent) => (
           <Card key={task.id} className="hover:bg-accent/50 transition-colors">
             <CardHeader className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-10 w-10">
                     <AvatarFallback className="bg-primary/10">
-                      {(task.agents as Agent)?.name?.charAt(0) || 'A'}
+                      {task.agents?.name?.charAt(0) || 'A'}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <CardTitle className="text-base">{task.task_type}</CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Assigned to: {(task.agents as Agent)?.name || 'Unassigned'}
+                      Assigned to: {task.agents?.name || 'Unassigned'}
                     </p>
                   </div>
                 </div>
