@@ -10,18 +10,32 @@ const corsHeaders = {
 const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
     console.log('Starting document request processing')
-    const { request } = await req.json()
-    console.log('Processing request:', request)
+    const body = await req.json()
+    console.log('Request body:', body)
 
-    if (!request) {
-      throw new Error('No request provided')
+    if (!body || !body.request) {
+      console.error('No request provided in body:', body)
+      return new Response(
+        JSON.stringify({
+          error: 'Failed to process document request',
+          details: 'No request provided'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      )
     }
+
+    const { request } = body
+    console.log('Processing request:', request)
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',

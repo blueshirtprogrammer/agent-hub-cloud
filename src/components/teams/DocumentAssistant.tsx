@@ -14,6 +14,15 @@ export const DocumentAssistant = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!request.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a document request",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsProcessing(true)
     setSteps([
       { 
@@ -39,9 +48,9 @@ export const DocumentAssistant = () => {
     ])
 
     try {
-      // First try the REIQ document assistant
+      console.log('Sending request to edge function:', { request })
       const { data: reiqData, error: reiqError } = await supabase.functions.invoke('reiq-document-assistant', {
-        body: { request: request } // Fixed: Properly format the request body
+        body: { request }
       })
 
       if (reiqError) {
