@@ -1,45 +1,39 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Loader2, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import html2canvas from 'html2canvas';
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Camera } from "lucide-react";
-import html2canvas from "html2canvas";
 
 export const UXAnalyzer = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<any>(null);
+  const [analysis, setAnalysis] = useState<string | null>(null);
   const { toast } = useToast();
 
   const captureAndAnalyze = async () => {
-    setIsAnalyzing(true);
     try {
-      // Capture the main content area
-      const mainContent = document.querySelector('main');
-      if (!mainContent) {
-        throw new Error('Could not find main content element');
-      }
+      setIsAnalyzing(true);
+      
+      // Capture the entire page
+      const canvas = await html2canvas(document.body);
+      const screenshot = canvas.toDataURL('image/png');
 
-      const canvas = await html2canvas(mainContent);
-      const imageData = canvas.toDataURL('image/png');
-
-      // Get current route context
-      const path = window.location.pathname;
-      const context = `This is the ${path.replace('/', '')} page of our real estate agent management platform.`;
-
-      const { data, error } = await supabase.functions.invoke('ux-design-agent', {
-        body: { imageData, context }
+      // Call the edge function
+      const { data: { analysis: result }, error } = await supabase.functions.invoke('analyze-interface', {
+        body: { screenshot, context: 'teams-page' },
       });
 
       if (error) throw error;
 
-      setAnalysis(data);
+      setAnalysis(result);
       toast({
         title: "Analysis Complete",
         description: "UX/UI analysis has been generated successfully.",
       });
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error analyzing interface:', error);
       toast({
         title: "Error",
         description: "Failed to analyze interface",
@@ -53,15 +47,15 @@ export const UXAnalyzer = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>UX/UI Analysis</CardTitle>
-        <CardDescription>
-          Analyze the current interface for UX/UI improvements and best practices
-        </CardDescription>
+        <CardTitle className="flex items-center gap-2">
+          <Eye className="h-5 w-5" />
+          UX/UI Analysis
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <Button 
-            onClick={captureAndAnalyze}
+            onClick={captureAndAnalyze} 
             disabled={isAnalyzing}
             className="w-full"
           >
@@ -71,47 +65,20 @@ export const UXAnalyzer = () => {
                 Analyzing Interface...
               </>
             ) : (
-              <>
-                <Camera className="mr-2 h-4 w-4" />
-                Analyze Current View
-              </>
+              'Analyze Current Interface'
             )}
           </Button>
 
           {analysis && (
-            <div className="space-y-4 mt-4">
-              <div>
-                <h3 className="font-medium mb-2">Overall Assessment</h3>
-                <p className="text-sm text-muted-foreground">{analysis.overall_assessment}</p>
+            <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+              <div className="space-y-4">
+                {analysis.split('\n').map((line, index) => (
+                  <p key={index} className="text-sm">
+                    {line}
+                  </p>
+                ))}
               </div>
-
-              <div>
-                <h3 className="font-medium mb-2">Strengths</h3>
-                <ul className="list-disc list-inside text-sm text-muted-foreground">
-                  {analysis.strengths.map((strength: string, index: number) => (
-                    <li key={index}>{strength}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-medium mb-2">Areas for Improvement</h3>
-                <ul className="list-disc list-inside text-sm text-muted-foreground">
-                  {analysis.areas_for_improvement.map((area: string, index: number) => (
-                    <li key={index}>{area}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-medium mb-2">Priority Changes</h3>
-                <ul className="list-disc list-inside text-sm text-muted-foreground">
-                  {analysis.priority_changes.map((change: string, index: number) => (
-                    <li key={index}>{change}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+            </ScrollArea>
           )}
         </div>
       </CardContent>

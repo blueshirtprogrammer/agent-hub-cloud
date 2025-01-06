@@ -1,162 +1,77 @@
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai@0.1.3'
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.1.3"
 
-// Define CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
-
-// Initialize Supabase client
-const supabaseUrl = Deno.env.get('SUPABASE_URL')
-const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-const supabase = createClient(supabaseUrl!, supabaseKey!)
-
-async function analyzeTeamRequirements(description: string) {
-  console.log('Starting team requirements analysis for:', description)
-  try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
-
-    const prompt = `You are a team configuration expert. Based on the following description, create a structured team configuration. Return ONLY a JSON object with no additional text or markdown formatting. The JSON should have these exact fields:
-
-{
-  "name": "string - a concise team name based on the description",
-  "description": "string - an enhanced version of the input description",
-  "roles": [
-    {
-      "name": "string - role title",
-      "description": "string - role responsibilities",
-      "capabilities": ["array of strings - key capabilities"],
-      "required_tools": ["array of strings - required tools"]
-    }
-  ],
-  "billing_tier": "string - either 'basic', 'pro', or 'enterprise' based on complexity",
-  "compute_credits": "number between 1000-10000",
-  "server_hours": "number between 100-1000"
-}
-
-Description: ${description}`;
-
-    const result = await model.generateContent(prompt)
-    const response = await result.response
-    console.log('Raw Gemini response:', response.text())
-    
-    // Clean and parse the response
-    let cleanedResponse = response.text()
-      .replace(/```json/gi, '')
-      .replace(/```/g, '')
-      .replace(/^JSON\s*/, '') // Remove "JSON" prefix if present
-      .trim()
-    
-    // If the response starts with a newline and {, remove everything before the first {
-    cleanedResponse = cleanedResponse.replace(/^[\s\S]*?({[\s\S]*})[\s\S]*$/, '$1')
-    
-    console.log('Cleaned response:', cleanedResponse)
-    
-    try {
-      const parsedResponse = JSON.parse(cleanedResponse)
-      console.log('Parsed response:', parsedResponse)
-      return parsedResponse
-    } catch (parseError) {
-      console.error('JSON parsing error:', parseError)
-      console.error('Failed to parse response:', cleanedResponse)
-      throw new Error(`Failed to parse JSON response: ${parseError.message}`)
-    }
-  } catch (error) {
-    console.error('Error in analyzeTeamRequirements:', error)
-    throw new Error(`Failed to analyze team requirements: ${error.message}`)
-  }
-}
-
-async function createSuperTeam(teamConfig: any) {
-  console.log('Creating team with config:', teamConfig)
-  try {
-    // Create team configuration
-    const { data: team, error: teamError } = await supabase
-      .from('team_configurations')
-      .insert([{
-        name: teamConfig.name,
-        description: teamConfig.description,
-        billing_tier: teamConfig.billing_tier.toLowerCase(),
-        compute_credits: teamConfig.compute_credits,
-        server_hours: teamConfig.server_hours
-      }])
-      .select()
-      .single()
-
-    if (teamError) throw teamError
-
-    // Create team roles
-    const rolePromises = teamConfig.roles.map((role: any) => 
-      supabase
-        .from('team_roles')
-        .insert([{
-          team_id: team.id,
-          name: role.name,
-          description: role.description,
-          capabilities: role.capabilities,
-          required_tools: role.required_tools
-        }])
-    )
-
-    await Promise.all(rolePromises)
-    console.log('Team and roles created successfully')
-    return { success: true, team }
-  } catch (error) {
-    console.error('Error creating super team:', error)
-    throw new Error(`Failed to create team: ${error.message}`)
-  }
-}
-
-Deno.serve(async (req) => {
-  // Handle CORS preflight requests
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { action, data } = await req.json()
-    console.log(`Processing ${action} request:`, data)
+    const { screenshot, context } = await req.json()
 
-    switch (action) {
-      case 'create_super_team': {
-        console.log('Analyzing team requirements:', data.description)
-        
-        const teamConfig = await analyzeTeamRequirements(data.description)
-        console.log('Generated team configuration:', teamConfig)
-        
-        const result = await createSuperTeam(teamConfig)
-        return new Response(
-          JSON.stringify(result),
-          { 
-            headers: { 
-              ...corsHeaders,
-              'Content-Type': 'application/json'
-            }
-          }
-        )
-      }
+    // Initialize Gemini
+    const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
+    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" })
 
-      default:
-        throw new Error('Invalid action')
-    }
-  } catch (error) {
-    console.error('Error processing request:', error)
-    return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        details: error.stack
-      }),
-      { 
-        status: 500,
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json'
+    // Convert base64 to uint8array for Gemini
+    const imageData = Uint8Array.from(atob(screenshot.split(',')[1]), c => c.charCodeAt(0))
+
+    // Analyze the interface
+    const result = await model.generateContent([
+      "You are a UX/UI expert. Analyze this interface screenshot and provide detailed feedback on:",
+      "1. Visual Hierarchy and Layout",
+      "2. Navigation and User Flow",
+      "3. Consistency and Branding",
+      "4. Accessibility and Usability",
+      "5. Performance and Responsiveness",
+      "Provide specific recommendations for improvements in each area.",
+      {
+        inlineData: {
+          mimeType: "image/png",
+          data: imageData
         }
       }
+    ])
+
+    const response = await result.response
+    const analysis = response.text()
+
+    // Store the analysis in the database
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    const { error: dbError } = await supabaseClient
+      .from('ux_analysis')
+      .insert({
+        analysis_result: { feedback: analysis },
+        context: context || 'general',
+      })
+
+    if (dbError) throw dbError
+
+    return new Response(
+      JSON.stringify({ analysis }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      },
+    )
+  } catch (error) {
+    console.error('Error:', error)
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      },
     )
   }
 })

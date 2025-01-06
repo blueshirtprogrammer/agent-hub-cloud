@@ -857,6 +857,30 @@ export type Database = {
           },
         ]
       }
+      ux_analysis: {
+        Row: {
+          analysis_result: Json
+          context: string | null
+          created_at: string | null
+          id: string
+          screenshot_timestamp: string | null
+        }
+        Insert: {
+          analysis_result?: Json
+          context?: string | null
+          created_at?: string | null
+          id?: string
+          screenshot_timestamp?: string | null
+        }
+        Update: {
+          analysis_result?: Json
+          context?: string | null
+          created_at?: string | null
+          id?: string
+          screenshot_timestamp?: string | null
+        }
+        Relationships: []
+      }
       workflow_templates: {
         Row: {
           created_at: string | null
