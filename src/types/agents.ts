@@ -1,9 +1,13 @@
 export type AgentRole = 
-  | 'BROWSER_CONTROLLER'
-  | 'VISION_ANALYZER' 
-  | 'DATA_PROCESSOR'
-  | 'TASK_COORDINATOR'
-  | 'RESEARCH_SPECIALIST';
+  | 'SUPERVISOR'
+  | 'BROWSER_ORCHESTRATOR'
+  | 'VISION_ORCHESTRATOR'
+  | 'DATA_ORCHESTRATOR'
+  | 'RESEARCH_ORCHESTRATOR'
+  | 'BROWSER_AGENT'
+  | 'VISION_AGENT'
+  | 'DATA_AGENT'
+  | 'RESEARCH_AGENT';
 
 export interface Agent {
   id: string;
@@ -11,6 +15,7 @@ export interface Agent {
   role: AgentRole;
   capabilities: string[];
   status: 'idle' | 'busy' | 'error';
+  parentId?: string; // Reference to orchestrator or supervisor
 }
 
 export interface Task {
@@ -22,11 +27,14 @@ export interface Task {
   created: Date;
   updated: Date;
   result?: any;
+  subTasks?: Task[]; // For breaking down complex tasks
 }
 
 export interface AgentTeam {
   id: string;
   name: string;
+  supervisor?: Agent;
+  orchestrators: Agent[];
   agents: Agent[];
   specialization: string;
 }
