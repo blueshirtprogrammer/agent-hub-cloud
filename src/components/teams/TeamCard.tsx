@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Users, BriefcaseIcon, Cpu, Clock, CreditCard } from "lucide-react";
+import { TeamRoleManager } from "./TeamRoleManager";
 import type { AgentTeam } from "@/types/agents";
 
 interface TeamCardProps {
@@ -56,9 +57,12 @@ export const TeamCard = ({ team }: TeamCardProps) => {
             </div>
           </div>
 
+          {/* Team Role Manager */}
+          <TeamRoleManager teamId={team.id} />
+
           {/* Roles Section */}
           <div>
-            <h3 className="text-sm font-medium mb-4">Roles</h3>
+            <h3 className="text-sm font-medium mb-4">Current Roles</h3>
             <Table>
               <TableHeader>
                 <TableRow>
