@@ -25,7 +25,7 @@ serve(async (req) => {
       throw new Error('Invalid image data format');
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-exp' });
 
     const prompt = `As a UX/UI expert specializing in real estate software interfaces, analyze this screenshot.
     Consider the following aspects:
