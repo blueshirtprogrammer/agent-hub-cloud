@@ -5,6 +5,7 @@ import { TeamCard } from "@/components/teams/TeamCard";
 import { CreateTeamDialog } from "@/components/teams/CreateTeamDialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { captureAndAnalyzeScreenshot } from "@/utils/screenshotAnalysis";
 
 export const Teams = () => {
   const teams = agentService.getTeams();
@@ -15,7 +16,24 @@ export const Teams = () => {
 
   useEffect(() => {
     fetchTemplates();
-  }, [industry, region]);
+    const analyzePage = async () => {
+      try {
+        const result = await captureAndAnalyzeScreenshot();
+        console.log('Teams analysis:', result);
+        
+        if (!result.error) {
+          toast({
+            title: "UX Analysis Complete",
+            description: "The teams page has been analyzed for UX improvements.",
+          });
+        }
+      } catch (error) {
+        console.error('Error analyzing teams:', error);
+      }
+    };
+
+    analyzePage();
+  }, []);
 
   const fetchTemplates = async () => {
     try {
