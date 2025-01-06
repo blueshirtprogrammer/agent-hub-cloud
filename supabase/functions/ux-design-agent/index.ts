@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.1.3";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
@@ -44,6 +45,11 @@ async function analyzeInterface(imageData: string, context: string) {
     }`;
 
     console.log('Sending request to Gemini API');
+    
+    if (!imageData.includes('base64')) {
+      throw new Error('Invalid image data format');
+    }
+
     const result = await model.generateContent([
       prompt,
       {
@@ -53,6 +59,10 @@ async function analyzeInterface(imageData: string, context: string) {
         }
       }
     ]);
+
+    if (!result.response) {
+      throw new Error('No response from Gemini API');
+    }
 
     const response = await result.response;
     const analysis = JSON.parse(response.text());
@@ -83,7 +93,10 @@ async function analyzeInterface(imageData: string, context: string) {
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      headers: corsHeaders,
+      status: 204
+    });
   }
 
   try {
