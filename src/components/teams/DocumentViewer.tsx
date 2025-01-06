@@ -67,11 +67,13 @@ export const DocumentViewer = () => {
 
   const downloadDocument = async (doc: Document) => {
     try {
+      const bucketName = doc.type === 'process' ? 'process_documents' : 
+                        doc.type === 'property' ? 'property_documents' : 
+                        'listing_documents';
+
       const { data, error } = await supabase.storage
-        .from(doc.type === 'process' ? 'process_documents' : 
-              doc.type === 'property' ? 'property_documents' : 
-              'listing_documents')
-        .download(doc.name);
+        .from(bucketName)
+        .download(doc.name); // Use just the filename, not the full path
 
       if (error) throw error;
 
@@ -101,11 +103,13 @@ export const DocumentViewer = () => {
 
   const deleteDocument = async (doc: Document) => {
     try {
+      const bucketName = doc.type === 'process' ? 'process_documents' : 
+                        doc.type === 'property' ? 'property_documents' : 
+                        'listing_documents';
+
       const { error } = await supabase.storage
-        .from(doc.type === 'process' ? 'process_documents' : 
-              doc.type === 'property' ? 'property_documents' : 
-              'listing_documents')
-        .remove([doc.name]);
+        .from(bucketName)
+        .remove([doc.name]); // Use just the filename, not the full path
 
       if (error) throw error;
 
