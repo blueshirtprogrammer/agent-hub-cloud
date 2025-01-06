@@ -10,7 +10,6 @@ const corsHeaders = {
 const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -48,13 +47,60 @@ serve(async (req) => {
 
     if (templateCheckError) {
       console.error('Error checking template:', templateCheckError)
-      throw new Error('Failed to check template existence')
+      throw templateCheckError
     }
 
     // If template doesn't exist locally, activate web research agent
     if (!templateExists || templateExists.length === 0) {
       console.log('Template not found locally, activating web research agent')
-      throw new Error('Template not found')
+      
+      const { data: researchResult, error: researchError } = await supabase
+        .functions
+        .invoke('web-research-agent', {
+          body: { 
+            searchQuery: request,
+            documentType: formType
+          }
+        })
+
+      if (researchError) {
+        console.error('Web research error:', researchError)
+        throw researchError
+      }
+
+      console.log('Web research completed:', researchResult)
+      
+      // Create a task for the retrieved document
+      const { data: task, error: taskError } = await supabase
+        .from('listing_tasks')
+        .insert({
+          task_type: 'document_processing',
+          status: 'pending',
+          metadata: {
+            formType,
+            originalRequest: request,
+            webResearchResult: researchResult
+          }
+        })
+        .select()
+        .single()
+
+      if (taskError) {
+        console.error('Error creating task:', taskError)
+        throw taskError
+      }
+
+      return new Response(
+        JSON.stringify({
+          message: 'Document retrieved from web research',
+          task: task.id,
+          researchResult
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      )
     }
 
     // Create a task for document processing
@@ -121,20 +167,6 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error processing request:', error)
     
-    // Special handling for template not found
-    if (error.message === 'Template not found') {
-      return new Response(
-        JSON.stringify({
-          error: 'Template not found',
-          message: error.message
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 404
-        }
-      )
-    }
-
     return new Response(
       JSON.stringify({
         error: 'Failed to process document request',
