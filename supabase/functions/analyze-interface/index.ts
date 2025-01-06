@@ -7,7 +7,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
+// Initialize Gemini with the correct API endpoint
+const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '', {
+  apiEndpoint: 'https://generativelanguage.googleapis.com/v1beta'
+})
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -27,8 +30,8 @@ serve(async (req) => {
     // Convert base64 to Uint8Array for Gemini
     const binaryData = Uint8Array.from(atob(imageData.split(',')[1]), c => c.charCodeAt(0))
     
-    // Use gemini-pro-vision for image analysis
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' })
+    // Use gemini-1.5-pro for image analysis as it's optimized for complex reasoning
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
 
     const prompt = `Analyze this interface screenshot and provide UX/UI feedback. Consider:
     1. Visual hierarchy
@@ -48,6 +51,8 @@ serve(async (req) => {
       "priority_changes": []
     }`
 
+    console.log('Sending request to Gemini with model: gemini-1.5-pro')
+    
     const result = await model.generateContent({
       contents: [{
         role: 'user',
