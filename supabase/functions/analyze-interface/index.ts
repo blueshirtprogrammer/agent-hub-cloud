@@ -20,22 +20,40 @@ async function analyzeTeamRequirements(description: string) {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
 
-    const prompt = `Analyze this team requirements description and create a structured team configuration. The response should be a JSON object with:
-    1. Team name (derived from the description)
-    2. Team description (enhanced version of user's input)
-    3. Required roles (array of roles with name, description, capabilities array, and required_tools array)
-    4. Suggested billing tier (basic, pro, or enterprise based on complexity)
-    5. Recommended compute credits (number between 1000-10000)
-    6. Recommended server hours (number between 100-1000)
+    const prompt = `You are a team configuration expert. Based on the following description, create a structured team configuration. Return ONLY a JSON object with no additional text or markdown formatting. The JSON should have these exact fields:
 
-    Description: ${description}
+{
+  "name": "string - a concise team name based on the description",
+  "description": "string - an enhanced version of the input description",
+  "roles": [
+    {
+      "name": "string - role title",
+      "description": "string - role responsibilities",
+      "capabilities": ["array of strings - key capabilities"],
+      "required_tools": ["array of strings - required tools"]
+    }
+  ],
+  "billing_tier": "string - either 'basic', 'pro', or 'enterprise' based on complexity",
+  "compute_credits": "number between 1000-10000",
+  "server_hours": "number between 100-1000"
+}
 
-    Format the response as a valid JSON object.`
+Description: ${description}`;
 
     const result = await model.generateContent(prompt)
     const response = await result.response
-    console.log('Analysis completed successfully')
-    return JSON.parse(response.text())
+    console.log('Raw Gemini response:', response.text())
+    
+    // Clean and parse the response
+    const cleanedResponse = response.text()
+      .replace(/```json/gi, '')
+      .replace(/```/g, '')
+      .trim()
+    
+    const parsedResponse = JSON.parse(cleanedResponse)
+    console.log('Parsed response:', parsedResponse)
+    
+    return parsedResponse
   } catch (error) {
     console.error('Error in analyzeTeamRequirements:', error)
     throw new Error(`Failed to analyze team requirements: ${error.message}`)
@@ -53,9 +71,7 @@ async function createSuperTeam(teamConfig: any) {
         description: teamConfig.description,
         billing_tier: teamConfig.billing_tier.toLowerCase(),
         compute_credits: teamConfig.compute_credits,
-        server_hours: teamConfig.server_hours,
-        requirements: teamConfig.requirements || {},
-        tools_and_integrations: teamConfig.tools_and_integrations || []
+        server_hours: teamConfig.server_hours
       }])
       .select()
       .single()
