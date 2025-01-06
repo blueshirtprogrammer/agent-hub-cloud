@@ -10,33 +10,49 @@ interface TeamResourcesProps {
 
 export const TeamResources = ({ computeCredits, serverHours, billingTier }: TeamResourcesProps) => {
   return (
-    <div>
-      <h3 className="text-sm font-medium mb-4">Resources</h3>
+    <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="pt-6 flex items-center gap-2">
-            <Cpu className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-medium">Compute Credits</p>
-              <p className="text-2xl font-bold">{computeCredits}</p>
+        <Card className="bg-card hover:bg-accent/5 transition-colors">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Cpu className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Compute Credits</p>
+                <p className="text-2xl font-bold text-primary mt-1">{computeCredits.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground mt-1">Available for processing</p>
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6 flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-medium">Server Hours</p>
-              <p className="text-2xl font-bold">{serverHours}</p>
+
+        <Card className="bg-card hover:bg-accent/5 transition-colors">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Clock className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Server Hours</p>
+                <p className="text-2xl font-bold text-primary mt-1">{serverHours.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground mt-1">Runtime remaining</p>
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6 flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-medium">Billing Tier</p>
-              <p className="text-2xl font-bold capitalize">{billingTier}</p>
+
+        <Card className="bg-card hover:bg-accent/5 transition-colors">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <CreditCard className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Billing Tier</p>
+                <p className="text-2xl font-bold text-primary mt-1 capitalize">{billingTier}</p>
+                <p className="text-xs text-muted-foreground mt-1">Current subscription</p>
+              </div>
             </div>
           </CardContent>
         </Card>
