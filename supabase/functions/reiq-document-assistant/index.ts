@@ -11,6 +11,36 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+async function validateFormAccuracy(formType: string, requirements: any) {
+  console.log('Validating form accuracy for:', formType)
+  
+  const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+  
+  const prompt = `As a REIQ document expert, validate the accuracy and completeness of the ${formType} requirements:
+  ${JSON.stringify(requirements, null, 2)}
+  
+  Please analyze and verify:
+  1. Are all required fields for this form type included?
+  2. Are the field requirements accurate according to current REIQ standards?
+  3. Are there any missing compliance requirements specific to Queensland?
+  4. Are the suggested values and formats correct?
+  5. What additional fields or requirements might be missing?
+  
+  Return a JSON object with:
+  {
+    "isValid": boolean,
+    "missingFields": string[],
+    "inaccurateFields": string[],
+    "suggestions": string[],
+    "complianceNotes": string[],
+    "confidence": number
+  }`
+
+  const result = await model.generateContent(prompt)
+  const response = await result.response
+  return JSON.parse(response.text())
+}
+
 async function findREIQDocument(formType: string) {
   console.log('Searching for REIQ document:', formType)
   
@@ -25,9 +55,6 @@ async function findREIQDocument(formType: string) {
     return existingDocs[0]
   }
 
-  // If not found locally, we'll need to retrieve it
-  // This would integrate with document search APIs or web scraping
-  // For now, we'll throw an error if template isn't found locally
   throw new Error('Template not found in local storage')
 }
 
@@ -51,7 +78,7 @@ async function analyzeFormRequirements(formType: string, propertyDetails: any) {
   return JSON.parse(response.text())
 }
 
-async function createTask(formType: string, propertyDetails: any, requirements: any) {
+async function createTask(formType: string, propertyDetails: any, requirements: any, validation: any) {
   // Find an agent with document processing capabilities
   const { data: agents } = await supabase
     .from('agents')
@@ -72,6 +99,7 @@ async function createTask(formType: string, propertyDetails: any, requirements: 
       form_type: formType,
       property_details: propertyDetails,
       requirements: requirements,
+      validation_results: validation,
       description: `Generate ${formType} for ${propertyDetails.address}`
     },
     due_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
@@ -87,7 +115,7 @@ async function createTask(formType: string, propertyDetails: any, requirements: 
   return data
 }
 
-async function createListingDocument(formType: string, propertyDetails: any, filePath: string) {
+async function createListingDocument(formType: string, propertyDetails: any, filePath: string, validation: any) {
   // First, find or create the property listing
   let { data: listing } = await supabase
     .from('property_listings')
@@ -121,7 +149,8 @@ async function createListingDocument(formType: string, propertyDetails: any, fil
       status: 'pending',
       metadata: {
         owner_name: propertyDetails.ownerName,
-        generated_at: new Date().toISOString()
+        generated_at: new Date().toISOString(),
+        validation_results: validation
       }
     }])
 
@@ -146,18 +175,23 @@ Deno.serve(async (req) => {
     const requirements = await analyzeFormRequirements(formType, propertyDetails)
     console.log('Analyzed requirements:', requirements)
 
+    // Validate form accuracy
+    const validation = await validateFormAccuracy(formType, requirements)
+    console.log('Validation results:', validation)
+
     // Create task for document generation
-    const task = await createTask(formType, propertyDetails, requirements)
+    const task = await createTask(formType, propertyDetails, requirements, validation)
     console.log('Created task:', task)
 
     // Create listing document record
-    const listingId = await createListingDocument(formType, propertyDetails, template.name)
+    const listingId = await createListingDocument(formType, propertyDetails, template.name, validation)
     console.log('Created listing document for listing:', listingId)
 
     return new Response(
       JSON.stringify({ 
         success: true,
         requirements,
+        validation,
         task,
         listingId
       }),
