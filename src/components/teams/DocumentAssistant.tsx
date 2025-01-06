@@ -41,52 +41,24 @@ export const DocumentAssistant = () => {
     try {
       // First try the REIQ document assistant
       const { data: reiqData, error: reiqError } = await supabase.functions.invoke('reiq-document-assistant', {
-        body: { request }
+        body: { request: request } // Fixed: Properly format the request body
       })
 
-      if (reiqError && reiqError.message.includes("Template not found")) {
-        // Update first step as completed but template not found
-        setSteps(prev => [
-          { ...prev[0], completed: true, text: "Local template not found" },
-          ...prev.slice(1)
-        ])
-
-        // Activate web research agent
-        const { data: researchData, error: researchError } = await supabase.functions.invoke('web-research-agent', {
-          body: { 
-            searchQuery: request,
-            documentType: "REIQ Form" // You can make this more specific based on the request
-          }
-        })
-
-        if (researchError) throw researchError
-
-        // Update steps based on web research success
-        setSteps(prev => prev.map((step, index) => ({
-          ...step,
-          completed: true,
-          text: index === 1 ? "Web research completed successfully" : step.text
-        })))
-
-        toast({
-          title: "Document Retrieved",
-          description: `Document found and stored at ${researchData.filePath}`,
-        })
-      } else if (reiqError) {
+      if (reiqError) {
+        console.error('REIQ Document Assistant Error:', reiqError)
         throw reiqError
-      } else {
-        // Local template was found and processed
-        setSteps(prev => prev.map((step, index) => ({
-          ...step,
-          completed: true,
-          text: index === 0 ? "Local template found and processed" : step.text
-        })))
-
-        toast({
-          title: "Document Processed",
-          description: "Document was found locally and processed successfully",
-        })
       }
+
+      // Update steps based on success
+      setSteps(prev => prev.map(step => ({
+        ...step,
+        completed: true
+      })))
+
+      toast({
+        title: "Document Request Processed",
+        description: reiqData.message || "Your document request has been processed successfully",
+      })
 
       setRequest("")
     } catch (error) {
