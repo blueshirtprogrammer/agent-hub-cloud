@@ -6,38 +6,66 @@ class AgentService {
   private tasks: Map<string, Task> = new Map();
 
   constructor() {
-    this.initializeSuperAgentTeam();
+    this.initializeRealEstateTeam();
   }
 
-  private initializeSuperAgentTeam() {
-    // Create Sales Team
-    const salesTeam: AgentTeam = {
+  private initializeRealEstateTeam() {
+    const realEstateTeam: AgentTeam = {
       id: crypto.randomUUID(),
-      name: "Sales Team",
-      specialization: "This team is responsible for generating and closing sales opportunities and managing customer relationships.",
-      orchestrators: [],
+      name: "Real Estate Sales Team",
+      specialization: "Automated end-to-end real estate sales process management",
+      orchestrators: [
+        {
+          id: crypto.randomUUID(),
+          name: "Process Orchestrator",
+          role: "Process management and coordination",
+          capabilities: ["workflow_management", "task_distribution", "status_monitoring"],
+          status: "idle"
+        }
+      ],
       agents: [
         {
           id: crypto.randomUUID(),
-          name: "Sales Manager",
-          role: "Team management and development",
-          capabilities: ["Team management", "Sales forecasting", "Performance analysis"],
+          name: "Listing Manager",
+          role: "Form 6 and document processing",
+          capabilities: ["document_processing", "contract_generation", "compliance_checking"],
           status: "idle"
         },
         {
           id: crypto.randomUUID(),
-          name: "Sales Representative",
-          role: "Lead prospecting and closing",
-          capabilities: ["Lead generation", "Sales presentations", "Negotiation"],
+          name: "Photography Coordinator",
+          role: "Photo and inspection scheduling",
+          capabilities: ["calendar_management", "tenant_communication", "vendor_coordination"],
+          status: "idle"
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "Marketing Agent",
+          role: "Advertisement and portal management",
+          capabilities: ["content_creation", "portal_management", "flyer_design"],
+          status: "idle"
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "Buyer Relations Agent",
+          role: "Buyer enquiry and offer management",
+          capabilities: ["enquiry_handling", "offer_processing", "viewing_coordination"],
+          status: "idle"
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "Settlement Coordinator",
+          role: "Contract to settlement management",
+          capabilities: ["contract_management", "settlement_coordination", "inspection_booking"],
           status: "idle"
         }
       ],
-      computeCredits: 5000,
-      serverHours: 200,
-      billingTier: "pro"
+      computeCredits: 10000,
+      serverHours: 500,
+      billingTier: "professional"
     };
 
-    this.teams.set(salesTeam.id, salesTeam);
+    this.teams.set(realEstateTeam.id, realEstateTeam);
   }
 
   createAgent(name: string, role: AgentRole, capabilities: string[], parentId?: string): Agent {
@@ -82,10 +110,7 @@ class AgentService {
   }
 
   private async analyzeAndAssignTask(task: Task) {
-    // Determine required capabilities based on task description
     const capabilities = await this.analyzeTaskRequirements(task.description);
-    
-    // Find suitable agents
     const requiredAgents = this.findSuitableAgents(capabilities);
     
     if (requiredAgents.length > 0) {
@@ -97,15 +122,22 @@ class AgentService {
   }
 
   private async analyzeTaskRequirements(description: string): Promise<string[]> {
-    // This would use NLP to determine required capabilities
-    // For now, returning mock capabilities
-    if (description.toLowerCase().includes('web') || description.toLowerCase().includes('screenshot')) {
-      return ['browser_control', 'screenshot'];
+    if (description.toLowerCase().includes('form 6') || description.toLowerCase().includes('document')) {
+      return ['document_processing', 'contract_generation'];
     }
-    if (description.toLowerCase().includes('ocr') || description.toLowerCase().includes('image')) {
-      return ['vision', 'ocr'];
+    if (description.toLowerCase().includes('photo') || description.toLowerCase().includes('inspection')) {
+      return ['calendar_management', 'vendor_coordination'];
     }
-    return ['research'];
+    if (description.toLowerCase().includes('advertis') || description.toLowerCase().includes('market')) {
+      return ['content_creation', 'portal_management'];
+    }
+    if (description.toLowerCase().includes('buyer') || description.toLowerCase().includes('offer')) {
+      return ['enquiry_handling', 'offer_processing'];
+    }
+    if (description.toLowerCase().includes('settlement') || description.toLowerCase().includes('contract')) {
+      return ['contract_management', 'settlement_coordination'];
+    }
+    return ['workflow_management'];
   }
 
   private findSuitableAgents(requiredCapabilities: string[]): Agent[] {
@@ -142,7 +174,6 @@ class AgentService {
     this.tasks.set(task.id, task);
   }
 
-  // Updated getters
   getAgents(): Agent[] {
     return Array.from(this.agents.values());
   }

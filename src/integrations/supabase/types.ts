@@ -167,6 +167,275 @@ export type Database = {
           },
         ]
       }
+      listing_documents: {
+        Row: {
+          document_type: string
+          file_path: string
+          id: string
+          listing_id: string | null
+          metadata: Json | null
+          status: string | null
+          uploaded_at: string | null
+        }
+        Insert: {
+          document_type: string
+          file_path: string
+          id?: string
+          listing_id?: string | null
+          metadata?: Json | null
+          status?: string | null
+          uploaded_at?: string | null
+        }
+        Update: {
+          document_type?: string
+          file_path?: string
+          id?: string
+          listing_id?: string | null
+          metadata?: Json | null
+          status?: string | null
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_documents_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_notifications: {
+        Row: {
+          content: string
+          id: string
+          listing_id: string | null
+          metadata: Json | null
+          notification_type: string
+          read_at: string | null
+          recipient_id: string | null
+          recipient_type: string
+          sent_at: string | null
+        }
+        Insert: {
+          content: string
+          id?: string
+          listing_id?: string | null
+          metadata?: Json | null
+          notification_type: string
+          read_at?: string | null
+          recipient_id?: string | null
+          recipient_type: string
+          sent_at?: string | null
+        }
+        Update: {
+          content?: string
+          id?: string
+          listing_id?: string | null
+          metadata?: Json | null
+          notification_type?: string
+          read_at?: string | null
+          recipient_id?: string | null
+          recipient_type?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_notifications_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string | null
+          due_date: string | null
+          id: string
+          listing_id: string | null
+          metadata: Json | null
+          status: string | null
+          task_type: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          listing_id?: string | null
+          metadata?: Json | null
+          status?: string | null
+          task_type: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          listing_id?: string | null
+          metadata?: Json | null
+          status?: string | null
+          task_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_tasks_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_listings: {
+        Row: {
+          address: string
+          bathrooms: number | null
+          bedrooms: number | null
+          created_at: string | null
+          id: string
+          land_size: number | null
+          listing_status: Database["public"]["Enums"]["listing_status"]
+          occupancy_status: Database["public"]["Enums"]["occupancy_status"]
+          parking: number | null
+          price_guide: number | null
+          seller_email: string
+          seller_name: string
+          seller_phone: string
+          updated_at: string | null
+        }
+        Insert: {
+          address: string
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string | null
+          id?: string
+          land_size?: number | null
+          listing_status?: Database["public"]["Enums"]["listing_status"]
+          occupancy_status?: Database["public"]["Enums"]["occupancy_status"]
+          parking?: number | null
+          price_guide?: number | null
+          seller_email: string
+          seller_name: string
+          seller_phone: string
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string | null
+          id?: string
+          land_size?: number | null
+          listing_status?: Database["public"]["Enums"]["listing_status"]
+          occupancy_status?: Database["public"]["Enums"]["occupancy_status"]
+          parking?: number | null
+          price_guide?: number | null
+          seller_email?: string
+          seller_name?: string
+          seller_phone?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      property_offers: {
+        Row: {
+          amount: number
+          buyer_id: string | null
+          conditions: Json | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          listing_id: string | null
+          status: Database["public"]["Enums"]["offer_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          buyer_id?: string | null
+          conditions?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          listing_id?: string | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string | null
+          conditions?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          listing_id?: string | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_viewings: {
+        Row: {
+          created_at: string | null
+          duration_minutes: number | null
+          id: string
+          listing_id: string | null
+          max_attendees: number | null
+          scheduled_time: string
+          status: string | null
+          viewing_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          listing_id?: string | null
+          max_attendees?: number | null
+          scheduled_time: string
+          status?: string | null
+          viewing_type: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          listing_id?: string | null
+          max_attendees?: number | null
+          scheduled_time?: string
+          status?: string | null
+          viewing_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_viewings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scraping_sessions: {
         Row: {
           created_at: string | null
@@ -292,6 +561,22 @@ export type Database = {
         | "technology"
         | "healthcare"
         | "education"
+      listing_status:
+        | "draft"
+        | "pending_documents"
+        | "pending_photos"
+        | "active"
+        | "under_contract"
+        | "settled"
+        | "withdrawn"
+      occupancy_status: "vacant" | "tenanted"
+      offer_status:
+        | "pending"
+        | "accepted"
+        | "rejected"
+        | "negotiating"
+        | "backup"
+        | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
