@@ -66,6 +66,39 @@ export type Database = {
         }
         Relationships: []
       }
+      communication_templates: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          subject: string
+          type: string
+          updated_at: string | null
+          variables: Json | null
+          workflow_stage: Database["public"]["Enums"]["workflow_stage"] | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          subject: string
+          type: string
+          updated_at?: string | null
+          variables?: Json | null
+          workflow_stage?: Database["public"]["Enums"]["workflow_stage"] | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          subject?: string
+          type?: string
+          updated_at?: string | null
+          variables?: Json | null
+          workflow_stage?: Database["public"]["Enums"]["workflow_stage"] | null
+        }
+        Relationships: []
+      }
       document_analysis: {
         Row: {
           analysis_result: Json | null
@@ -333,88 +366,212 @@ export type Database = {
           },
         ]
       }
+      open_home_schedules: {
+        Row: {
+          created_at: string | null
+          current_registrations: number | null
+          duration_minutes: number | null
+          id: string
+          listing_id: string | null
+          max_attendees: number | null
+          scheduled_time: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_registrations?: number | null
+          duration_minutes?: number | null
+          id?: string
+          listing_id?: string | null
+          max_attendees?: number | null
+          scheduled_time: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_registrations?: number | null
+          duration_minutes?: number | null
+          id?: string
+          listing_id?: string | null
+          max_attendees?: number | null
+          scheduled_time?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "open_home_schedules_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photography_bookings: {
+        Row: {
+          created_at: string | null
+          id: string
+          listing_id: string | null
+          photo_urls: string[] | null
+          photographer_name: string | null
+          scheduled_time: string
+          status: string | null
+          updated_at: string | null
+          virtual_tour_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          photo_urls?: string[] | null
+          photographer_name?: string | null
+          scheduled_time: string
+          status?: string | null
+          updated_at?: string | null
+          virtual_tour_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          photo_urls?: string[] | null
+          photographer_name?: string | null
+          scheduled_time?: string
+          status?: string | null
+          updated_at?: string | null
+          virtual_tour_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photography_bookings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       property_listings: {
         Row: {
           address: string
           bathrooms: number | null
           bedrooms: number | null
           created_at: string | null
+          flyer_url: string | null
           id: string
+          is_tenanted: boolean | null
           land_size: number | null
           listing_status: Database["public"]["Enums"]["listing_status"]
+          marketing_copy: string | null
           occupancy_status: Database["public"]["Enums"]["occupancy_status"]
+          on_market_price: number | null
           parking: number | null
           price_guide: number | null
+          property_manager_details: Json | null
           seller_email: string
           seller_name: string
           seller_phone: string
+          tenant_contact_details: Json | null
+          timer_end_date: string | null
           updated_at: string | null
+          workflow_stage: Database["public"]["Enums"]["workflow_stage"] | null
         }
         Insert: {
           address: string
           bathrooms?: number | null
           bedrooms?: number | null
           created_at?: string | null
+          flyer_url?: string | null
           id?: string
+          is_tenanted?: boolean | null
           land_size?: number | null
           listing_status?: Database["public"]["Enums"]["listing_status"]
+          marketing_copy?: string | null
           occupancy_status?: Database["public"]["Enums"]["occupancy_status"]
+          on_market_price?: number | null
           parking?: number | null
           price_guide?: number | null
+          property_manager_details?: Json | null
           seller_email: string
           seller_name: string
           seller_phone: string
+          tenant_contact_details?: Json | null
+          timer_end_date?: string | null
           updated_at?: string | null
+          workflow_stage?: Database["public"]["Enums"]["workflow_stage"] | null
         }
         Update: {
           address?: string
           bathrooms?: number | null
           bedrooms?: number | null
           created_at?: string | null
+          flyer_url?: string | null
           id?: string
+          is_tenanted?: boolean | null
           land_size?: number | null
           listing_status?: Database["public"]["Enums"]["listing_status"]
+          marketing_copy?: string | null
           occupancy_status?: Database["public"]["Enums"]["occupancy_status"]
+          on_market_price?: number | null
           parking?: number | null
           price_guide?: number | null
+          property_manager_details?: Json | null
           seller_email?: string
           seller_name?: string
           seller_phone?: string
+          tenant_contact_details?: Json | null
+          timer_end_date?: string | null
           updated_at?: string | null
+          workflow_stage?: Database["public"]["Enums"]["workflow_stage"] | null
         }
         Relationships: []
       }
       property_offers: {
         Row: {
           amount: number
+          building_pest_days: number | null
           buyer_id: string | null
           conditions: Json | null
           created_at: string | null
           expires_at: string | null
+          finance_days: number | null
           id: string
+          is_backup_offer: boolean | null
           listing_id: string | null
+          special_conditions: Json | null
           status: Database["public"]["Enums"]["offer_status"]
           updated_at: string | null
         }
         Insert: {
           amount: number
+          building_pest_days?: number | null
           buyer_id?: string | null
           conditions?: Json | null
           created_at?: string | null
           expires_at?: string | null
+          finance_days?: number | null
           id?: string
+          is_backup_offer?: boolean | null
           listing_id?: string | null
+          special_conditions?: Json | null
           status?: Database["public"]["Enums"]["offer_status"]
           updated_at?: string | null
         }
         Update: {
           amount?: number
+          building_pest_days?: number | null
           buyer_id?: string | null
           conditions?: Json | null
           created_at?: string | null
           expires_at?: string | null
+          finance_days?: number | null
           id?: string
+          is_backup_offer?: boolean | null
           listing_id?: string | null
+          special_conditions?: Json | null
           status?: Database["public"]["Enums"]["offer_status"]
           updated_at?: string | null
         }
@@ -678,6 +835,36 @@ export type Database = {
           },
         ]
       }
+      workflow_templates: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          required_documents: Json
+          stages: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          required_documents?: Json
+          stages?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          required_documents?: Json
+          stages?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -687,6 +874,16 @@ export type Database = {
     }
     Enums: {
       billing_tier: "basic" | "pro" | "enterprise"
+      document_type:
+        | "form_6"
+        | "rates_notice"
+        | "tenancy_agreement"
+        | "key_record"
+        | "title_search"
+        | "contract_draft"
+        | "form_9"
+        | "form_10"
+        | "property_report"
       industry_sector:
         | "real_estate"
         | "finance"
@@ -710,6 +907,16 @@ export type Database = {
         | "negotiating"
         | "backup"
         | "expired"
+      workflow_stage:
+        | "initial_contact"
+        | "document_collection"
+        | "photo_scheduling"
+        | "marketing_prep"
+        | "active_listing"
+        | "offer_management"
+        | "under_contract"
+        | "settlement_prep"
+        | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
