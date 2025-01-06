@@ -579,6 +579,105 @@ export type Database = {
           },
         ]
       }
+      tool_assignments: {
+        Row: {
+          agent_id: string | null
+          assigned_by: string | null
+          created_at: string | null
+          id: string
+          status: string | null
+          tool_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          assigned_by?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          tool_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          assigned_by?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          tool_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_assignments_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tool_assignments_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tool_assignments_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tools: {
+        Row: {
+          capabilities: Json | null
+          configuration: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          integration_id: string | null
+          name: string
+          status: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          capabilities?: Json | null
+          configuration?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          integration_id?: string | null
+          name: string
+          status?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          capabilities?: Json | null
+          configuration?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          integration_id?: string | null
+          name?: string
+          status?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tools_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integration_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
