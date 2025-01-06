@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { IndustryContext } from "@/components/teams/IndustryContext";
 import { TeamCard } from "@/components/teams/TeamCard";
 import { DocumentUpload } from "@/components/teams/DocumentUpload";
+import { DocumentGenerator } from "@/components/teams/DocumentGenerator";
 import { CreateTeamDialog } from "@/components/teams/CreateTeamDialog";
 
 export const Teams = () => {
@@ -103,7 +104,10 @@ export const Teams = () => {
         </div>
       </div>
       
-      <DocumentUpload />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <DocumentUpload />
+        <DocumentGenerator />
+      </div>
 
       {templates.length > 0 && (
         <IndustryContext
