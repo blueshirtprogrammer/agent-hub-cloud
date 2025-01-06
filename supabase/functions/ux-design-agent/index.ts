@@ -3,12 +3,12 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.2.1";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -25,7 +25,7 @@ serve(async (req) => {
       throw new Error('Invalid image data format');
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-exp' });
+    const model = genAI.getGenerativeModel({ model: 'learnlm-1.5-pro-experimental' });
 
     const prompt = `As a UX/UI expert specializing in real estate software interfaces, analyze this screenshot.
     Consider the following aspects:
