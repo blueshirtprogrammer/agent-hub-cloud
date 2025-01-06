@@ -43,23 +43,23 @@ export class ModelRouter {
     // Then, select based on task type and complexity
     switch (type) {
       case 'visual_analysis':
-        return AI_MODELS['learnlm-vision'];
+        return AI_MODELS['gemini-pro-vision'];
 
       case 'complex_reasoning':
         return complexityLevel === 'complex' 
-          ? AI_MODELS['gemini-2.0-flash-thinking']
-          : AI_MODELS['gemini-2.0-flash'];
+          ? AI_MODELS['gemini-ultra']
+          : AI_MODELS['gemini-pro'];
 
       case 'real_time_generation':
-        return AI_MODELS['gemini-2.0-flash'];
+        return AI_MODELS['gemini-pro'];
 
       case 'document_processing':
         return complexityLevel === 'complex'
-          ? AI_MODELS['gemini-2.0-flash']
-          : AI_MODELS['gemini-base'];
+          ? AI_MODELS['gemini-ultra']
+          : AI_MODELS['gemini-pro'];
 
       default:
-        return AI_MODELS['gemini-base'];
+        return AI_MODELS['gemini-pro'];
     }
   }
 }
