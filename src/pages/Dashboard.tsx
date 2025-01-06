@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { captureAndAnalyzeScreen } from "@/utils/screenshotAnalysis";
+import { captureAndAnalyzeScreenshot } from "@/utils/screenshotAnalysis";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,13 +18,15 @@ export const Dashboard = () => {
   useEffect(() => {
     const analyzePage = async () => {
       try {
-        const analysis = await captureAndAnalyzeScreen('dashboard-page');
-        console.log('Dashboard analysis:', analysis);
+        const result = await captureAndAnalyzeScreenshot();
+        console.log('Dashboard analysis:', result);
         
-        toast({
-          title: "UX Analysis Complete",
-          description: "The dashboard has been analyzed for UX improvements.",
-        });
+        if (!result.error) {
+          toast({
+            title: "UX Analysis Complete",
+            description: "The dashboard has been analyzed for UX improvements.",
+          });
+        }
       } catch (error) {
         console.error('Error analyzing dashboard:', error);
       }

@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
-import { captureAndAnalyzeScreen } from "@/utils/screenshotAnalysis";
+import { captureAndAnalyzeScreenshot } from "@/utils/screenshotAnalysis";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskForm } from "@/components/tasks/TaskForm";
 import { TaskList } from "@/components/tasks/TaskList";
 import { Task } from "@/types/tasks";
-import { Database } from "@/integrations/supabase/types";
 
 export const Tasks = () => {
   const { toast } = useToast();
@@ -17,13 +16,15 @@ export const Tasks = () => {
     fetchTasks();
     const analyzePage = async () => {
       try {
-        const analysis = await captureAndAnalyzeScreen('tasks-page');
-        console.log('Tasks analysis:', analysis);
+        const result = await captureAndAnalyzeScreenshot();
+        console.log('Tasks analysis:', result);
         
-        toast({
-          title: "UX Analysis Complete",
-          description: "The tasks page has been analyzed for UX improvements.",
-        });
+        if (!result.error) {
+          toast({
+            title: "UX Analysis Complete",
+            description: "The tasks page has been analyzed for UX improvements.",
+          });
+        }
       } catch (error) {
         console.error('Error analyzing tasks:', error);
       }

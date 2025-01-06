@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { captureAndAnalyzeScreen } from "@/utils/screenshotAnalysis";
+import { captureAndAnalyzeScreenshot } from "@/utils/screenshotAnalysis";
 import { useToast } from "@/hooks/use-toast";
 
 export const Properties = () => {
@@ -8,13 +8,15 @@ export const Properties = () => {
   useEffect(() => {
     const analyzePage = async () => {
       try {
-        const analysis = await captureAndAnalyzeScreen('properties-page');
-        console.log('Properties analysis:', analysis);
+        const result = await captureAndAnalyzeScreenshot();
+        console.log('Properties analysis:', result);
         
-        toast({
-          title: "UX Analysis Complete",
-          description: "The properties page has been analyzed for UX improvements.",
-        });
+        if (!result.error) {
+          toast({
+            title: "UX Analysis Complete",
+            description: "The properties page has been analyzed for UX improvements.",
+          });
+        }
       } catch (error) {
         console.error('Error analyzing properties:', error);
       }

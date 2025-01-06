@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { captureAndAnalyzeScreen } from "@/utils/screenshotAnalysis";
+import { captureAndAnalyzeScreenshot } from "@/utils/screenshotAnalysis";
 import { useToast } from "@/hooks/use-toast";
 import { PlatformIntegrations } from "@/components/integration/platforms/PlatformIntegrations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,13 +13,15 @@ export const Settings = () => {
   useEffect(() => {
     const analyzePage = async () => {
       try {
-        const analysis = await captureAndAnalyzeScreen('settings-page');
-        console.log('Settings analysis:', analysis);
+        const result = await captureAndAnalyzeScreenshot();
+        console.log('Settings analysis:', result);
         
-        toast({
-          title: "UX Analysis Complete",
-          description: "The settings page has been analyzed for UX improvements.",
-        });
+        if (!result.error) {
+          toast({
+            title: "UX Analysis Complete",
+            description: "The settings page has been analyzed for UX improvements.",
+          });
+        }
       } catch (error) {
         console.error('Error analyzing settings:', error);
       }
