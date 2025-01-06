@@ -11,6 +11,26 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+async function findREIQDocument(formType: string) {
+  console.log('Searching for REIQ document:', formType)
+  
+  // First check our local storage
+  const { data: existingDocs } = await supabase
+    .storage
+    .from('process_documents')
+    .list(`templates/${formType}`)
+
+  if (existingDocs && existingDocs.length > 0) {
+    console.log('Found template in local storage')
+    return existingDocs[0]
+  }
+
+  // If not found locally, we'll need to retrieve it
+  // This would integrate with document search APIs or web scraping
+  // For now, we'll throw an error if template isn't found locally
+  throw new Error('Template not found in local storage')
+}
+
 async function analyzeFormRequirements(formType: string, propertyDetails: any) {
   console.log('Analyzing form requirements for:', formType, propertyDetails)
   
@@ -32,6 +52,7 @@ async function analyzeFormRequirements(formType: string, propertyDetails: any) {
 }
 
 async function createTask(formType: string, propertyDetails: any, requirements: any) {
+  // Find an agent with document processing capabilities
   const { data: agents } = await supabase
     .from('agents')
     .select('*')
@@ -42,6 +63,7 @@ async function createTask(formType: string, propertyDetails: any, requirements: 
     throw new Error('No suitable agent found for document processing')
   }
 
+  // Create a task for document generation
   const task = {
     task_type: `Generate ${formType}`,
     status: 'pending',
@@ -65,6 +87,48 @@ async function createTask(formType: string, propertyDetails: any, requirements: 
   return data
 }
 
+async function createListingDocument(formType: string, propertyDetails: any, filePath: string) {
+  // First, find or create the property listing
+  let { data: listing } = await supabase
+    .from('property_listings')
+    .select('id')
+    .eq('address', propertyDetails.address)
+    .single()
+
+  if (!listing) {
+    const { data: newListing, error: listingError } = await supabase
+      .from('property_listings')
+      .insert([{
+        address: propertyDetails.address,
+        seller_name: propertyDetails.ownerName,
+        listing_status: 'draft',
+        workflow_stage: 'document_preparation'
+      }])
+      .select()
+      .single()
+
+    if (listingError) throw listingError
+    listing = newListing
+  }
+
+  // Create the document record
+  const { error: docError } = await supabase
+    .from('listing_documents')
+    .insert([{
+      listing_id: listing.id,
+      document_type: formType,
+      file_path: filePath,
+      status: 'pending',
+      metadata: {
+        owner_name: propertyDetails.ownerName,
+        generated_at: new Date().toISOString()
+      }
+    }])
+
+  if (docError) throw docError
+  return listing.id
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -74,6 +138,10 @@ Deno.serve(async (req) => {
     const { formType, propertyDetails } = await req.json()
     console.log('Received request for:', formType, propertyDetails)
 
+    // Find the template document
+    const template = await findREIQDocument(formType)
+    console.log('Found template:', template)
+
     // Analyze form requirements
     const requirements = await analyzeFormRequirements(formType, propertyDetails)
     console.log('Analyzed requirements:', requirements)
@@ -82,11 +150,16 @@ Deno.serve(async (req) => {
     const task = await createTask(formType, propertyDetails, requirements)
     console.log('Created task:', task)
 
+    // Create listing document record
+    const listingId = await createListingDocument(formType, propertyDetails, template.name)
+    console.log('Created listing document for listing:', listingId)
+
     return new Response(
       JSON.stringify({ 
         success: true,
         requirements,
-        task
+        task,
+        listingId
       }),
       { 
         headers: { 
