@@ -7,6 +7,7 @@ import { IndustryContext } from "@/components/teams/IndustryContext";
 import { TeamCard } from "@/components/teams/TeamCard";
 import { DocumentUpload } from "@/components/teams/DocumentUpload";
 import { DocumentGenerator } from "@/components/teams/DocumentGenerator";
+import { DocumentAssistant } from "@/components/teams/DocumentAssistant";
 import { CreateTeamDialog } from "@/components/teams/CreateTeamDialog";
 
 export const Teams = () => {
@@ -105,8 +106,12 @@ export const Teams = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <DocumentUpload />
+        <DocumentAssistant />
         <DocumentGenerator />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
+        <DocumentUpload />
       </div>
 
       {templates.length > 0 && (
