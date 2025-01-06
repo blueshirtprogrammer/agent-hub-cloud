@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { IndustryContext } from "@/components/teams/IndustryContext";
 import { TeamCard } from "@/components/teams/TeamCard";
 import { DocumentUpload } from "@/components/teams/DocumentUpload";
+import { CreateTeamDialog } from "@/components/teams/CreateTeamDialog";
 
 export const Teams = () => {
   const teams = agentService.getTeams();
@@ -60,11 +61,17 @@ export const Teams = () => {
     }
   };
 
+  const handleTeamCreated = () => {
+    // Refresh the teams list
+    fetchBusinessContext();
+    fetchTemplates();
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Your Teams</h1>
-        <div className="flex gap-4">
+        <div className="flex items-center gap-4">
           <Select value={industry} onValueChange={setIndustry}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select industry" />
@@ -92,13 +99,12 @@ export const Teams = () => {
               <SelectItem value="ACT">Australian Capital Territory</SelectItem>
             </SelectContent>
           </Select>
+          <CreateTeamDialog onTeamCreated={handleTeamCreated} />
         </div>
       </div>
       
-      {/* Document Upload Section */}
       <DocumentUpload />
 
-      {/* Industry Context Section */}
       {templates.length > 0 && (
         <IndustryContext
           templates={templates}
@@ -107,7 +113,6 @@ export const Teams = () => {
         />
       )}
 
-      {/* Existing Teams Section */}
       <div className="grid gap-6">
         {teams.map((team) => (
           <TeamCard key={team.id} team={team} />
