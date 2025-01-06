@@ -74,6 +74,11 @@ export const DocumentGenerator = () => {
                 <SelectItem value="form_30c">Form 30C - Residential Tenancy Agreement</SelectItem>
                 <SelectItem value="form_1a">Form 1A - Entry Condition Report</SelectItem>
                 <SelectItem value="form_12">Form 12 - Property Occupancy Certificate</SelectItem>
+                <SelectItem value="form_27c">Form 27C - Selling Agency Agreement</SelectItem>
+                <SelectItem value="form_18a">Form 18A - General Tenancy Agreement</SelectItem>
+                <SelectItem value="form_14">Form 14 - Information Statement</SelectItem>
+                <SelectItem value="form_24">Form 24 - Property Transfer</SelectItem>
+                <SelectItem value="form_32a">Form 32A - Property Management Agreement</SelectItem>
               </SelectContent>
             </Select>
           </div>
