@@ -1,112 +1,103 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.2.1";
-
-const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai@0.1.3'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
+
+const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { 
-      headers: corsHeaders,
-      status: 204
-    });
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    const { imageData, context, analysisId } = await req.json();
-    
-    if (!imageData || !imageData.includes('base64')) {
-      throw new Error('Invalid image data format');
-    }
+    const { imageData, context } = await req.json()
+    console.log('Analyzing interface with context:', context)
 
-    console.log('Starting analysis with Gemini Pro Vision...');
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
-
-    const prompt = `As a UX/UI expert specializing in real estate software interfaces, analyze this screenshot.
-    Consider the following aspects:
-
-    1. Visual Hierarchy & Layout
-    - Evaluate the layout structure and content organization
-    - Assess the visual hierarchy of information
-    - Check spacing and alignment consistency
-
-    2. Navigation & User Flow
-    - Evaluate the navigation structure
-    - Assess the clarity of user pathways
-    - Check for clear call-to-actions
-
-    3. Real Estate Industry Context
-    - Evaluate alignment with real estate workflows
-    - Check industry-specific feature implementation
-    - Assess professional presentation
-
-    4. Accessibility & Usability
-    - Check color contrast and readability
-    - Evaluate form design and input patterns
-    - Assess responsive design implementation
-
-    Current context: ${context}
-
-    Provide analysis in this format:
-    {
-      "overall_assessment": "Brief overall evaluation",
-      "strengths": ["Key positive aspects"],
-      "areas_for_improvement": ["Specific improvement suggestions"],
-      "industry_specific_feedback": ["Real estate industry specific notes"],
-      "accessibility_notes": ["Accessibility observations"],
-      "priority_changes": ["Ordered list of recommended changes"]
-    }`;
-
-    console.log('Sending request to Gemini...');
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          mimeType: "image/png",
-          data: imageData.split(',')[1]
-        }
-      }
-    ]);
-
-    if (!result.response) {
-      throw new Error('No response from AI model');
-    }
-
-    const response = await result.response;
-    console.log('Received response from Gemini');
-    const analysis = JSON.parse(response.text());
-
-    // Update the analysis in Supabase
+    // Initialize Supabase client
     const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') || '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-    );
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
-    console.log('Updating analysis in database...');
-    const { error: updateError } = await supabase
+    // Convert base64 to Uint8Array for Gemini
+    const binaryData = Uint8Array.from(atob(imageData.split(',')[1]), c => c.charCodeAt(0))
+    
+    // Use gemini-pro-vision for image analysis
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' })
+
+    const prompt = `Analyze this interface screenshot and provide UX/UI feedback. Consider:
+    1. Visual hierarchy
+    2. Layout and spacing
+    3. Color usage and contrast
+    4. Typography
+    5. Interactive elements
+    6. Accessibility concerns
+    
+    Additional context: ${context || 'No specific context provided'}
+    
+    Provide feedback in JSON format with these keys:
+    {
+      "strengths": [],
+      "improvements": [],
+      "accessibility": [],
+      "priority_changes": []
+    }`
+
+    const result = await model.generateContent({
+      contents: [{
+        role: 'user',
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType: 'image/png', data: imageData.split(',')[1] } }
+        ]
+      }]
+    })
+
+    const response = await result.response
+    let analysis = {}
+
+    try {
+      analysis = JSON.parse(response.text())
+    } catch (parseError) {
+      console.error('Failed to parse analysis as JSON:', parseError)
+      analysis = {
+        raw_text: response.text(),
+        error: 'Failed to parse as JSON'
+      }
+    }
+
+    // Store analysis result
+    const { error: dbError } = await supabase
       .from('ux_analysis')
-      .update({ analysis_result: analysis })
-      .eq('id', analysisId);
+      .insert({
+        analysis_result: analysis,
+        context: context || null
+      })
 
-    if (updateError) throw updateError;
+    if (dbError) {
+      console.error('Error storing analysis:', dbError)
+    }
 
     return new Response(
-      JSON.stringify({ analysis }),
+      JSON.stringify({ 
+        success: true,
+        analysis
+      }),
       { 
         headers: { 
           ...corsHeaders,
           'Content-Type': 'application/json'
         }
       }
-    );
+    )
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in analyze-interface:', error)
     return new Response(
       JSON.stringify({ 
         error: error.message,
@@ -119,6 +110,6 @@ serve(async (req) => {
           'Content-Type': 'application/json'
         }
       }
-    );
+    )
   }
-});
+})

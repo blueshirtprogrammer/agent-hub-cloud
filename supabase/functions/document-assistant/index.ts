@@ -1,40 +1,49 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { GoogleGenerativeAI } from 'https://esm.sh/@google/generative-ai@0.1.3'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
+
+const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    const { request } = await req.json();
+    const { request } = await req.json()
+    console.log('Processing document request:', request)
     
     const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') || '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-    );
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
     // First check if document exists in process_documents bucket
-    console.log('Checking process_documents bucket...');
     const { data: processDocsData, error: processDocsError } = await supabase.storage
       .from('process_documents')
-      .list();
+      .list()
 
     if (processDocsError) {
-      console.error('Error accessing process_documents:', processDocsError);
-      throw processDocsError;
+      console.error('Error accessing process_documents:', processDocsError)
+      throw new Error('Failed to access document storage')
     }
 
-    // Process the request and return appropriate response
+    // Process the request using Gemini
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+    const result = await model.generateContent(request)
+    const response = await result.response
+    const text = response.text()
+
     return new Response(
       JSON.stringify({
-        message: "Document request processed",
-        documents: processDocsData
+        message: 'Document request processed successfully',
+        result: text,
+        availableDocuments: processDocsData
       }),
       { 
         headers: { 
@@ -42,10 +51,10 @@ serve(async (req) => {
           'Content-Type': 'application/json'
         }
       }
-    );
+    )
 
   } catch (error) {
-    console.error('Error in document-assistant:', error);
+    console.error('Error in document-assistant:', error)
     return new Response(
       JSON.stringify({ 
         error: error.message,
@@ -58,6 +67,6 @@ serve(async (req) => {
           'Content-Type': 'application/json'
         }
       }
-    );
+    )
   }
-});
+})
