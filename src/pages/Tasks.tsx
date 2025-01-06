@@ -11,9 +11,18 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { PlusCircle, Loader2, CheckCircle2, Clock } from "lucide-react";
 
+interface Task {
+  id: string;
+  title: string;
+  description: string | null;
+  priority: string;
+  due_date: string | null;
+  status: string;
+}
+
 export const Tasks = () => {
   const { toast } = useToast();
-  const [tasks, setTasks] = React.useState<any[]>([]);
+  const [tasks, setTasks] = React.useState<Task[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
