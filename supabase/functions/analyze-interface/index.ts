@@ -6,71 +6,71 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Initialize Gemini with the latest Flash Thinking model for better reasoning
 const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
 
-// Initialize Supabase Admin Client
 const supabaseUrl = Deno.env.get('SUPABASE_URL')
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 const supabase = createClient(supabaseUrl!, supabaseKey!)
 
-async function createSuperAgentTeam(teamConfig: any) {
+async function analyzeTeamRequirements(description: string) {
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-thinking-exp-1219' })
+
+  const prompt = `Analyze this team requirements description and create a structured team configuration. The response should be a JSON object with:
+  1. Team name (derived from the description)
+  2. Team description (enhanced version of user's input)
+  3. Required roles (array of roles with name, description, capabilities array, and required_tools array)
+  4. Suggested billing tier (basic, pro, or enterprise based on complexity)
+  5. Recommended compute credits (number between 1000-10000)
+  6. Recommended server hours (number between 100-1000)
+
+  Description: ${description}
+
+  Format the response as a valid JSON object.`
+
+  const result = await model.generateContent(prompt)
+  const response = await result.response
+  return JSON.parse(response.text())
+}
+
+async function createSuperTeam(teamConfig: any) {
   try {
-    // Create supervisor agent
-    const { data: supervisor, error: supervisorError } = await supabase
-      .from('agents')
+    console.log('Creating team with config:', teamConfig)
+
+    // Create team configuration
+    const { data: team, error: teamError } = await supabase
+      .from('team_configurations')
       .insert([{
-        name: `${teamConfig.name}_Supervisor`,
-        role: 'SUPERVISOR',
-        capabilities: ['task_distribution', 'coordination'],
-        status: 'idle'
+        name: teamConfig.name,
+        description: teamConfig.description,
+        billing_tier: teamConfig.billing_tier.toLowerCase(),
+        compute_credits: teamConfig.compute_credits,
+        server_hours: teamConfig.server_hours,
+        requirements: teamConfig.requirements || {},
+        tools_and_integrations: teamConfig.tools_and_integrations || []
       }])
       .select()
       .single()
 
-    if (supervisorError) throw supervisorError
+    if (teamError) throw teamError
 
-    // Create orchestrator agents
-    const orchestratorRoles = ['BROWSER_ORCHESTRATOR', 'VISION_ORCHESTRATOR', 'DATA_ORCHESTRATOR']
-    const orchestrators = await Promise.all(
-      orchestratorRoles.map(async (role) => {
-        const { data: orchestrator } = await supabase
-          .from('agents')
-          .insert([{
-            name: `${teamConfig.name}_${role}`,
-            role,
-            capabilities: ['task_management', role.toLowerCase()],
-            status: 'idle'
-          }])
-          .select()
-          .single()
-        return orchestrator
-      })
+    // Create team roles
+    const rolePromises = teamConfig.roles.map((role: any) => 
+      supabase
+        .from('team_roles')
+        .insert([{
+          team_id: team.id,
+          name: role.name,
+          description: role.description,
+          capabilities: role.capabilities,
+          required_tools: role.required_tools
+        }])
     )
 
-    // Create specialized agents for each orchestrator
-    const agentConfigs = [
-      { role: 'BROWSER_AGENT', count: 3, capabilities: ['web_scraping', 'navigation'] },
-      { role: 'VISION_AGENT', count: 2, capabilities: ['image_analysis', 'ocr'] },
-      { role: 'DATA_AGENT', count: 2, capabilities: ['data_processing', 'storage'] }
-    ]
+    await Promise.all(rolePromises)
 
-    for (const config of agentConfigs) {
-      for (let i = 0; i < config.count; i++) {
-        await supabase
-          .from('agents')
-          .insert([{
-            name: `${teamConfig.name}_${config.role}_${i + 1}`,
-            role: config.role,
-            capabilities: config.capabilities,
-            status: 'idle'
-          }])
-      }
-    }
-
-    return { success: true, supervisor, orchestrators }
+    return { success: true, team }
   } catch (error) {
-    console.error('Error creating super agent team:', error)
+    console.error('Error creating super team:', error)
     return { success: false, error }
   }
 }
@@ -106,6 +106,19 @@ Deno.serve(async (req) => {
     const { action, data } = await req.json()
 
     switch (action) {
+      case 'create_super_team': {
+        console.log('Analyzing team requirements:', data.description)
+        
+        const teamConfig = await analyzeTeamRequirements(data.description)
+        console.log('Generated team configuration:', teamConfig)
+        
+        const result = await createSuperTeam(teamConfig)
+        return new Response(
+          JSON.stringify(result),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }}
+        )
+      }
+
       case 'analyze_interface': {
         const { url, screenshot } = data
         console.log('Analyzing interface for URL:', url)
@@ -145,14 +158,6 @@ Deno.serve(async (req) => {
 
         return new Response(
           JSON.stringify({ success: true, sessionId: session.id, analysis }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }}
-        )
-      }
-
-      case 'create_super_team': {
-        const result = await createSuperAgentTeam(data)
-        return new Response(
-          JSON.stringify(result),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }}
         )
       }

@@ -3,13 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
 export default function Index() {
-  const [teamName, setTeamName] = useState("");
-  const [specialization, setSpecialization] = useState("");
+  const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [teams, setTeams] = useState<any[]>([]);
   const { toast } = useToast();
@@ -17,13 +17,15 @@ export default function Index() {
   // Fetch existing teams
   const fetchTeams = async () => {
     try {
-      const { data: agents, error } = await supabase
-        .from('agents')
-        .select('*')
-        .eq('role', 'SUPERVISOR');
+      const { data: teamConfigs, error: teamsError } = await supabase
+        .from('team_configurations')
+        .select(`
+          *,
+          team_roles (*)
+        `);
       
-      if (error) throw error;
-      setTeams(agents || []);
+      if (teamsError) throw teamsError;
+      setTeams(teamConfigs || []);
     } catch (error) {
       console.error('Error fetching teams:', error);
       toast({
@@ -47,8 +49,7 @@ export default function Index() {
         body: { 
           action: 'create_super_team',
           data: {
-            name: teamName,
-            specialization: specialization
+            description
           }
         }
       });
@@ -57,25 +58,32 @@ export default function Index() {
 
       toast({
         title: "Success",
-        description: "Super agent team created successfully!",
+        description: "Team created successfully! Check the details below.",
       });
 
       // Refresh teams list
       await fetchTeams();
 
       // Reset form
-      setTeamName("");
-      setSpecialization("");
+      setDescription("");
     } catch (error) {
       console.error('Error creating team:', error);
       toast({
         title: "Error",
-        description: "Failed to create super agent team. Please try again.",
+        description: "Failed to create team. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatCapabilities = (capabilities: string[]) => {
+    return capabilities.join(", ");
+  };
+
+  const formatTools = (tools: string[]) => {
+    return tools.join(", ");
   };
 
   return (
@@ -84,28 +92,18 @@ export default function Index() {
         {/* Create Team Form */}
         <Card>
           <CardHeader>
-            <CardTitle>Create Super Agent Team</CardTitle>
+            <CardTitle>Create AI Team</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreateTeam} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="teamName">Team Name</Label>
-                <Input
-                  id="teamName"
-                  value={teamName}
-                  onChange={(e) => setTeamName(e.target.value)}
-                  placeholder="Enter team name"
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="specialization">Specialization</Label>
-                <Input
-                  id="specialization"
-                  value={specialization}
-                  onChange={(e) => setSpecialization(e.target.value)}
-                  placeholder="Enter team specialization"
+                <Label htmlFor="description">Describe Your Team Needs</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Describe the team you need in plain English. For example: 'I need a marketing team that can handle content creation, social media, and email campaigns. They should be able to use tools like Buffer and Mailchimp.'"
+                  className="min-h-[150px]"
                   required
                 />
               </div>
@@ -114,10 +112,10 @@ export default function Index() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
+                    Creating Team...
                   </>
                 ) : (
-                  "Create Super Agent Team"
+                  "Create AI Team"
                 )}
               </Button>
             </form>
@@ -127,7 +125,7 @@ export default function Index() {
         {/* Existing Teams */}
         <Card>
           <CardHeader>
-            <CardTitle>Existing Teams</CardTitle>
+            <CardTitle>Your Teams</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -136,13 +134,43 @@ export default function Index() {
               ) : (
                 teams.map((team) => (
                   <Card key={team.id} className="p-4">
-                    <h3 className="font-semibold">{team.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Role: {team.role}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Status: {team.status}
-                    </p>
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-lg">{team.name}</h3>
+                      <p className="text-sm text-muted-foreground">{team.description}</p>
+                      
+                      <div className="mt-4">
+                        <h4 className="font-medium text-sm">Resources:</h4>
+                        <ul className="text-sm text-muted-foreground">
+                          <li>Compute Credits: {team.compute_credits}</li>
+                          <li>Server Hours: {team.server_hours}</li>
+                          <li>Billing Tier: {team.billing_tier}</li>
+                        </ul>
+                      </div>
+
+                      {team.team_roles && team.team_roles.length > 0 && (
+                        <div className="mt-4">
+                          <h4 className="font-medium text-sm">Roles:</h4>
+                          <div className="grid gap-2">
+                            {team.team_roles.map((role: any) => (
+                              <div key={role.id} className="text-sm">
+                                <p className="font-medium">{role.name}</p>
+                                <p className="text-muted-foreground">{role.description}</p>
+                                {role.capabilities && (
+                                  <p className="text-xs text-muted-foreground">
+                                    Capabilities: {formatCapabilities(role.capabilities)}
+                                  </p>
+                                )}
+                                {role.required_tools && (
+                                  <p className="text-xs text-muted-foreground">
+                                    Tools: {formatTools(role.required_tools)}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </Card>
                 ))
               )}

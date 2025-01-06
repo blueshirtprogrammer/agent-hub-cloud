@@ -107,6 +107,86 @@ export type Database = {
         }
         Relationships: []
       }
+      team_configurations: {
+        Row: {
+          active: boolean | null
+          api_keys: Json | null
+          billing_tier: Database["public"]["Enums"]["billing_tier"] | null
+          compute_credits: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          requirements: Json | null
+          server_hours: number | null
+          tools_and_integrations: Json | null
+        }
+        Insert: {
+          active?: boolean | null
+          api_keys?: Json | null
+          billing_tier?: Database["public"]["Enums"]["billing_tier"] | null
+          compute_credits?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          requirements?: Json | null
+          server_hours?: number | null
+          tools_and_integrations?: Json | null
+        }
+        Update: {
+          active?: boolean | null
+          api_keys?: Json | null
+          billing_tier?: Database["public"]["Enums"]["billing_tier"] | null
+          compute_credits?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          requirements?: Json | null
+          server_hours?: number | null
+          tools_and_integrations?: Json | null
+        }
+        Relationships: []
+      }
+      team_roles: {
+        Row: {
+          capabilities: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          required_tools: Json | null
+          team_id: string | null
+        }
+        Insert: {
+          capabilities?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          required_tools?: Json | null
+          team_id?: string | null
+        }
+        Update: {
+          capabilities?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          required_tools?: Json | null
+          team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_roles_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "team_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -115,7 +195,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      billing_tier: "basic" | "pro" | "enterprise"
     }
     CompositeTypes: {
       [_ in never]: never
