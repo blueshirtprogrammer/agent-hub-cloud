@@ -12,10 +12,10 @@ export type AgentRole =
 export interface Agent {
   id: string;
   name: string;
-  role: AgentRole;
+  role: string;
   capabilities: string[];
   status: 'idle' | 'busy' | 'error';
-  parentId?: string; // Reference to orchestrator or supervisor
+  parentId?: string;
 }
 
 export interface Task {
@@ -27,7 +27,7 @@ export interface Task {
   created: Date;
   updated: Date;
   result?: any;
-  subTasks?: Task[]; // For breaking down complex tasks
+  subTasks?: Task[];
 }
 
 export interface AgentTeam {
@@ -37,4 +37,7 @@ export interface AgentTeam {
   orchestrators: Agent[];
   agents: Agent[];
   specialization: string;
+  computeCredits?: number;
+  serverHours?: number;
+  billingTier?: string;
 }

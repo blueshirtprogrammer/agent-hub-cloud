@@ -10,46 +10,34 @@ class AgentService {
   }
 
   private initializeSuperAgentTeam() {
-    // Create Supervisor
-    const supervisor = this.createAgent("SupervisorAgent", "SUPERVISOR", ["task_distribution", "coordination"]);
-
-    // Create Orchestrators
-    const browserOrchestrator = this.createAgent("BrowserOrchestrator", "BROWSER_ORCHESTRATOR", ["web_automation"], supervisor.id);
-    const visionOrchestrator = this.createAgent("VisionOrchestrator", "VISION_ORCHESTRATOR", ["image_processing"], supervisor.id);
-    const dataOrchestrator = this.createAgent("DataOrchestrator", "DATA_ORCHESTRATOR", ["data_management"], supervisor.id);
-    const researchOrchestrator = this.createAgent("ResearchOrchestrator", "RESEARCH_ORCHESTRATOR", ["analysis"], supervisor.id);
-
-    // Create Browser Agents
-    const browserAgents = Array.from({length: 6}, (_, i) => 
-      this.createAgent(`BrowserAgent${i+1}`, "BROWSER_AGENT", ["navigation", "scraping"], browserOrchestrator.id)
-    );
-
-    // Create Vision Agents
-    const visionAgents = Array.from({length: 3}, (_, i) =>
-      this.createAgent(`VisionAgent${i+1}`, "VISION_AGENT", ["ocr", "image_analysis"], visionOrchestrator.id)
-    );
-
-    // Create Data Agents
-    const dataAgents = Array.from({length: 2}, (_, i) =>
-      this.createAgent(`DataAgent${i+1}`, "DATA_AGENT", ["processing", "storage"], dataOrchestrator.id)
-    );
-
-    // Create Research Agents
-    const researchAgents = Array.from({length: 4}, (_, i) =>
-      this.createAgent(`ResearchAgent${i+1}`, "RESEARCH_AGENT", ["analysis", "enrichment"], researchOrchestrator.id)
-    );
-
-    // Create Super Agent Team
-    const superTeam: AgentTeam = {
+    // Create Sales Team
+    const salesTeam: AgentTeam = {
       id: crypto.randomUUID(),
-      name: "Super Agent Team",
-      supervisor: supervisor,
-      orchestrators: [browserOrchestrator, visionOrchestrator, dataOrchestrator, researchOrchestrator],
-      agents: [...browserAgents, ...visionAgents, ...dataAgents, ...researchAgents],
-      specialization: "Real Estate Research and Analysis"
+      name: "Sales Team",
+      specialization: "This team is responsible for generating and closing sales opportunities and managing customer relationships.",
+      orchestrators: [],
+      agents: [
+        {
+          id: crypto.randomUUID(),
+          name: "Sales Manager",
+          role: "Team management and development",
+          capabilities: ["Team management", "Sales forecasting", "Performance analysis"],
+          status: "idle"
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "Sales Representative",
+          role: "Lead prospecting and closing",
+          capabilities: ["Lead generation", "Sales presentations", "Negotiation"],
+          status: "idle"
+        }
+      ],
+      computeCredits: 5000,
+      serverHours: 200,
+      billingTier: "pro"
     };
 
-    this.teams.set(superTeam.id, superTeam);
+    this.teams.set(salesTeam.id, salesTeam);
   }
 
   createAgent(name: string, role: AgentRole, capabilities: string[], parentId?: string): Agent {
