@@ -1,77 +1,121 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.1.3"
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.2.1";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { 
+      headers: corsHeaders,
+      status: 204
+    });
   }
 
   try {
-    const { screenshot, context } = await req.json()
+    const { imageData, context, analysisId } = await req.json();
+    
+    if (!imageData || !imageData.includes('base64')) {
+      throw new Error('Invalid image data format');
+    }
 
-    // Initialize Gemini
-    const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" })
+    const model = genAI.getGenerativeModel({ model: 'learnlm-1.5-pro-experimental' });
 
-    // Convert base64 to uint8array for Gemini
-    const imageData = Uint8Array.from(atob(screenshot.split(',')[1]), c => c.charCodeAt(0))
+    const prompt = `As a UX/UI expert specializing in real estate software interfaces, analyze this screenshot.
+    Consider the following aspects:
 
-    // Analyze the interface
+    1. Visual Hierarchy & Layout
+    - Evaluate the layout structure and content organization
+    - Assess the visual hierarchy of information
+    - Check spacing and alignment consistency
+
+    2. Navigation & User Flow
+    - Evaluate the navigation structure
+    - Assess the clarity of user pathways
+    - Check for clear call-to-actions
+
+    3. Real Estate Industry Context
+    - Evaluate alignment with real estate workflows
+    - Check industry-specific feature implementation
+    - Assess professional presentation
+
+    4. Accessibility & Usability
+    - Check color contrast and readability
+    - Evaluate form design and input patterns
+    - Assess responsive design implementation
+
+    Current context: ${context}
+
+    Provide analysis in this format:
+    {
+      "overall_assessment": "Brief overall evaluation",
+      "strengths": ["Key positive aspects"],
+      "areas_for_improvement": ["Specific improvement suggestions"],
+      "industry_specific_feedback": ["Real estate industry specific notes"],
+      "accessibility_notes": ["Accessibility observations"],
+      "priority_changes": ["Ordered list of recommended changes"]
+    }`;
+
     const result = await model.generateContent([
-      "You are a UX/UI expert. Analyze this interface screenshot and provide detailed feedback on:",
-      "1. Visual Hierarchy and Layout",
-      "2. Navigation and User Flow",
-      "3. Consistency and Branding",
-      "4. Accessibility and Usability",
-      "5. Performance and Responsiveness",
-      "Provide specific recommendations for improvements in each area.",
+      prompt,
       {
         inlineData: {
           mimeType: "image/png",
-          data: imageData
+          data: imageData.split(',')[1]
         }
       }
-    ])
+    ]);
 
-    const response = await result.response
-    const analysis = response.text()
+    if (!result.response) {
+      throw new Error('No response from AI model');
+    }
 
-    // Store the analysis in the database
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    const response = await result.response;
+    const analysis = JSON.parse(response.text());
 
-    const { error: dbError } = await supabaseClient
+    // Update the analysis in Supabase
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') || '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+    );
+
+    const { error: updateError } = await supabase
       .from('ux_analysis')
-      .insert({
-        analysis_result: { feedback: analysis },
-        context: context || 'general',
-      })
+      .update({ analysis_result: analysis })
+      .eq('id', analysisId);
 
-    if (dbError) throw dbError
+    if (updateError) throw updateError;
 
     return new Response(
       JSON.stringify({ analysis }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      },
-    )
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack
+      }),
+      { 
         status: 500,
-      },
-    )
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   }
-})
+});
