@@ -25,7 +25,7 @@ serve(async (req) => {
       throw new Error('Invalid image data format');
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
+    const model = genAI.getGenerativeModel({ model: 'gpt-4o-mini' });
 
     const prompt = `As a UX/UI expert specializing in real estate software interfaces, analyze this screenshot.
     Consider the following aspects:
@@ -73,7 +73,7 @@ serve(async (req) => {
     ]);
 
     if (!result.response) {
-      throw new Error('No response from Gemini API');
+      throw new Error('No response from AI model');
     }
 
     const response = await result.response;
