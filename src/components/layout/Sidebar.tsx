@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Home, Settings, Users, FileText, ListChecks, Building } from "lucide-react";
+import { Home, Settings, Users, FileText, ListChecks, Building, Book } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Sidebar = () => {
@@ -44,6 +44,13 @@ export const Sidebar = () => {
         >
           <ListChecks className="h-4 w-4" />
           Workflow Management
+        </Link>
+        <Link
+          to="/brief"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+        >
+          <Book className="h-4 w-4" />
+          Project Brief
         </Link>
         <Link
           to="/settings"
