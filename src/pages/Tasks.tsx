@@ -46,9 +46,9 @@ export const Tasks = () => {
         id: task.id,
         title: task.title,
         description: task.description || null,
-        priority: task.priority as Task['priority'] || 'medium',
+        priority: (task.priority as Task['priority']) || 'medium',
         due_date: task.due_date || null,
-        status: task.status as Task['status'] || 'pending',
+        status: (task.status as Task['status']) || 'pending',
         created_at: task.created_at || null,
         updated_at: task.updated_at || null
       }));
