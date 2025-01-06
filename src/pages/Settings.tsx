@@ -1,127 +1,105 @@
-import React, { useEffect } from "react";
-import { captureAndAnalyzeScreenshot } from "@/utils/screenshotAnalysis";
-import { useToast } from "@/hooks/use-toast";
-import { PlatformIntegrations } from "@/components/integration/platforms/PlatformIntegrations";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings2, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { supabase } from "@/integrations/supabase/client";
+
+interface TeamConfiguration {
+  id: string;
+  name: string;
+  description: string | null;
+  billing_tier: string;
+  compute_credits: number;
+  server_hours: number;
+  active: boolean;
+}
 
 export const Settings = () => {
-  const { toast } = useToast();
-  const [analysis, setAnalysis] = React.useState<string | null>(null);
+  const { data: config, isLoading, error } = useQuery({
+    queryKey: ['team-configuration'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('team_configurations')
+        .select('*')
+        .limit(1)
+        .single();
 
-  useEffect(() => {
-    const analyzePage = async () => {
-      try {
-        const result = await captureAndAnalyzeScreenshot();
-        console.log('Settings analysis:', result);
-        
-        if (!result.error && result.analysis) {
-          setAnalysis(result.analysis);
-          toast({
-            title: "UX Analysis Complete",
-            description: "The settings page has been analyzed for UX improvements.",
-          });
-        }
-      } catch (error) {
-        console.error('Error analyzing settings:', error);
-        toast({
-          title: "Analysis Error",
-          description: "Failed to analyze the interface. Please try again.",
-          variant: "destructive",
-        });
-      }
-    };
+      if (error) throw error;
+      return data as TeamConfiguration;
+    },
+  });
 
-    analyzePage();
-  }, []);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
-  const handlePlatformToggle = (platformIndex: number, integrationIndex: number) => {
-    // Handle platform toggle logic
-    console.log('Platform toggled:', platformIndex, integrationIndex);
-  };
-
-  const handleSaveChanges = () => {
-    toast({
-      title: "Changes Saved",
-      description: "Your platform integration settings have been updated successfully.",
-    });
-  };
+  if (error) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load settings. Please try again later.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between border-b border-border pb-4">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Platform Settings</h1>
-          <p className="text-muted-foreground">
-            Configure your integrations and platform preferences
-          </p>
-        </div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                onClick={handleSaveChanges}
-                className="bg-primary hover:bg-primary/90 text-white font-semibold"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save Changes
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Save all changes</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-
-      <div className="grid gap-6">
-        {analysis && (
-          <Card className="border-2 border-primary/10 shadow-lg">
-            <CardHeader className="bg-primary/5">
-              <CardTitle className="text-lg font-semibold">UX Analysis Results</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[200px] w-full rounded-md">
-                <div className="space-y-2 p-4">
-                  {analysis.split('\n').map((line, index) => (
-                    <p key={index} className="text-sm">
-                      {line}
-                    </p>
-                  ))}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        )}
-
-        <Card className="border-2 border-primary/10 shadow-lg">
-          <CardHeader className="bg-primary/5">
+    <div className="p-6 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Team Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <h3 className="font-semibold">{config?.name}</h3>
+            {config?.description && (
+              <p className="text-sm text-muted-foreground">
+                {config.description}
+              </p>
+            )}
             <div className="flex items-center gap-2">
-              <Settings2 className="w-5 h-5 text-primary" />
-              <CardTitle className="text-lg font-semibold">Integration Hub</CardTitle>
+              <Badge variant={config?.active ? 'default' : 'secondary'}>
+                {config?.billing_tier}
+              </Badge>
+              <Badge variant={config?.active ? 'default' : 'secondary'}>
+                {config?.active ? 'Active' : 'Inactive'}
+              </Badge>
             </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="max-w-4xl mx-auto">
-              <PlatformIntegrations onPlatformToggle={handlePlatformToggle} />
-            </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        <div className="flex justify-end mt-6">
-          <Button 
-            onClick={handleSaveChanges}
-            size="lg"
-            className="bg-primary hover:bg-primary/90 text-white font-semibold"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Save All Changes
-          </Button>
-        </div>
-      </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Compute Credits</span>
+                <span className="text-sm text-muted-foreground">
+                  {config?.compute_credits} credits
+                </span>
+              </div>
+              <Progress value={config?.compute_credits} max={1000} />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Server Hours</span>
+                <span className="text-sm text-muted-foreground">
+                  {config?.server_hours} hours
+                </span>
+              </div>
+              <Progress value={config?.server_hours} max={100} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
