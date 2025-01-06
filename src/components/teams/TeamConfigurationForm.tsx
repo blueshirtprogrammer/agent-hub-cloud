@@ -19,6 +19,7 @@ export const TeamConfigurationForm = ({ teamId, onConfigurationUpdated }: TeamCo
   const [serverHours, setServerHours] = React.useState<number>(100);
   const [billingTier, setBillingTier] = React.useState<'basic' | 'pro' | 'enterprise'>('basic');
   const [isActive, setIsActive] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(true);
   const { toast } = useToast();
 
   React.useEffect(() => {
@@ -27,11 +28,12 @@ export const TeamConfigurationForm = ({ teamId, onConfigurationUpdated }: TeamCo
 
   const fetchTeamConfiguration = async () => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('team_configurations')
         .select('*')
         .eq('id', teamId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
@@ -40,6 +42,12 @@ export const TeamConfigurationForm = ({ teamId, onConfigurationUpdated }: TeamCo
         setServerHours(data.server_hours || 100);
         setBillingTier(data.billing_tier || 'basic');
         setIsActive(data.active !== false);
+      } else {
+        // If no configuration exists, we'll keep the default values
+        toast({
+          title: "No configuration found",
+          description: "Using default configuration values",
+        });
       }
     } catch (error) {
       console.error('Error fetching team configuration:', error);
@@ -48,6 +56,8 @@ export const TeamConfigurationForm = ({ teamId, onConfigurationUpdated }: TeamCo
         description: "Failed to fetch team configuration",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,13 +67,15 @@ export const TeamConfigurationForm = ({ teamId, onConfigurationUpdated }: TeamCo
     try {
       const { error } = await supabase
         .from('team_configurations')
-        .update({
+        .upsert({
+          id: teamId,
           compute_credits: computeCredits,
           server_hours: serverHours,
           billing_tier: billingTier,
           active: isActive
         })
-        .eq('id', teamId);
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -82,6 +94,19 @@ export const TeamConfigurationForm = ({ teamId, onConfigurationUpdated }: TeamCo
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Settings2 className="h-5 w-5 text-muted-foreground" />
+            <CardTitle className="text-lg font-semibold">Loading Configuration...</CardTitle>
+          </div>
+        </CardHeader>
+      </Card>
+    );
+  }
 
   return (
     <Card>
