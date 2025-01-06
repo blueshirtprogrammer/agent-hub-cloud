@@ -7,30 +7,30 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
+const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '')
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
+    const { request } = await req.json()
+    console.log('Processing request:', request)
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { request } = await req.json()
-
     // Use Gemini to analyze the request and determine required forms
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" })
     const prompt = `As a real estate document assistant, analyze this request and determine which REIQ form is needed: "${request}". 
-                   Return only the form number (e.g., "form_6", "form_9", etc.).`;
+                   Return only the form number (e.g., "form_6", "form_9", etc.).`
 
-    const result = await model.generateContent(prompt);
-    const formType = result.response.text().trim().toLowerCase();
-    console.log('Identified form type:', formType);
+    const result = await model.generateContent(prompt)
+    const formType = result.response.text().trim().toLowerCase()
+    console.log('Identified form type:', formType)
 
     // Check if template exists in storage
     const { data: templateExists, error: templateCheckError } = await supabase
@@ -39,22 +39,25 @@ serve(async (req) => {
       .list(`templates/${formType}`)
 
     if (templateCheckError) {
-      console.error('Error checking template:', templateCheckError);
-      throw new Error('Failed to check template existence');
+      console.error('Error checking template:', templateCheckError)
+      throw new Error('Failed to check template existence')
     }
 
+    // If template doesn't exist locally, activate web research agent
     if (!templateExists || templateExists.length === 0) {
-      console.error('Template not found:', formType);
-      return new Response(
-        JSON.stringify({
-          error: `Template ${formType} not found. Available templates are in process_documents/templates/`,
-          formType
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 404
-        }
-      )
+      console.log('Template not found locally, activating web research agent')
+      
+      const { data: researchResult, error: researchError } = await supabase
+        .functions
+        .invoke('web-research-agent', {
+          body: { 
+            searchQuery: request,
+            documentType: formType
+          }
+        })
+
+      if (researchError) throw researchError
+      console.log('Web research completed:', researchResult)
     }
 
     // Create a task for document processing
@@ -73,8 +76,8 @@ serve(async (req) => {
       .single()
 
     if (taskError) {
-      console.error('Error creating task:', taskError);
-      throw taskError;
+      console.error('Error creating task:', taskError)
+      throw taskError
     }
 
     // Assign to an available agent
@@ -86,8 +89,8 @@ serve(async (req) => {
       .single()
 
     if (agentError) {
-      console.error('Error finding agent:', agentError);
-      throw agentError;
+      console.error('Error finding agent:', agentError)
+      throw agentError
     }
 
     // Update task with assigned agent
@@ -97,8 +100,8 @@ serve(async (req) => {
       .eq('id', task.id)
 
     if (updateError) {
-      console.error('Error assigning task:', updateError);
-      throw updateError;
+      console.error('Error assigning task:', updateError)
+      throw updateError
     }
 
     return new Response(
@@ -115,7 +118,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error processing request:', error);
+    console.error('Error processing request:', error)
     return new Response(
       JSON.stringify({
         error: 'Failed to process document request',
