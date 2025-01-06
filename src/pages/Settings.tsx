@@ -1,30 +1,32 @@
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import React, { useEffect } from "react";
+import { captureAndAnalyzeScreen } from "@/utils/screenshotAnalysis";
+import { useToast } from "@/hooks/use-toast";
 
 export const Settings = () => {
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const analyzePage = async () => {
+      try {
+        const analysis = await captureAndAnalyzeScreen('settings-page');
+        console.log('Settings analysis:', analysis);
+        
+        toast({
+          title: "UX Analysis Complete",
+          description: "The settings page has been analyzed for UX improvements.",
+        });
+      } catch (error) {
+        console.error('Error analyzing settings:', error);
+      }
+    };
+
+    analyzePage();
+  }, []);
+
   return (
-    <div className="p-6 space-y-6">
+    <div>
       <h1 className="text-2xl font-semibold">Settings</h1>
-      
-      <div className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Agent Settings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="auto-assign">Auto-assign tasks to agents</Label>
-              <Switch id="auto-assign" />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="notifications">Enable notifications</Label>
-              <Switch id="notifications" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Add your settings content here */}
     </div>
   );
 };

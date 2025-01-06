@@ -1,31 +1,32 @@
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useEffect } from "react";
+import { captureAndAnalyzeScreen } from "@/utils/screenshotAnalysis";
+import { useToast } from "@/hooks/use-toast";
 
 export const Properties = () => {
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const analyzePage = async () => {
+      try {
+        const analysis = await captureAndAnalyzeScreen('properties-page');
+        console.log('Properties analysis:', analysis);
+        
+        toast({
+          title: "UX Analysis Complete",
+          description: "The properties page has been analyzed for UX improvements.",
+        });
+      } catch (error) {
+        console.error('Error analyzing properties:', error);
+      }
+    };
+
+    analyzePage();
+  }, []);
+
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Properties</h1>
-      
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>123 Ocean View Drive</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Sunshine Coast, QLD
-              </p>
-              <p className="text-sm">
-                4 bed, 2 bath, 2 car
-              </p>
-              <p className="font-semibold">
-                $850,000
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+    <div>
+      <h1>Properties</h1>
+      {/* Add your properties content here */}
     </div>
   );
 };

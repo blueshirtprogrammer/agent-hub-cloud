@@ -11,6 +11,7 @@ import { DocumentAssistant } from "@/components/teams/DocumentAssistant";
 import { DocumentViewer } from "@/components/teams/DocumentViewer";
 import { UXAnalyzer } from "@/components/teams/UXAnalyzer";
 import { CreateTeamDialog } from "@/components/teams/CreateTeamDialog";
+import { captureAndAnalyzeScreen } from "@/utils/screenshotAnalysis";
 
 export const Teams = () => {
   const teams = agentService.getTeams();
@@ -23,7 +24,27 @@ export const Teams = () => {
   useEffect(() => {
     fetchBusinessContext();
     fetchTemplates();
+    analyzeCurrentPage();
   }, [industry, region]);
+
+  const analyzeCurrentPage = async () => {
+    try {
+      const analysis = await captureAndAnalyzeScreen('teams-page');
+      console.log('Teams page analysis:', analysis);
+      
+      toast({
+        title: "UX Analysis Complete",
+        description: "The teams page has been analyzed for UX improvements.",
+      });
+    } catch (error) {
+      console.error('Error analyzing teams page:', error);
+      toast({
+        title: "Analysis Error",
+        description: "Failed to analyze the teams page.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const fetchBusinessContext = async () => {
     try {
