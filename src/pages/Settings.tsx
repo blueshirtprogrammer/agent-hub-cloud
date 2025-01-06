@@ -3,7 +3,9 @@ import { captureAndAnalyzeScreen } from "@/utils/screenshotAnalysis";
 import { useToast } from "@/hooks/use-toast";
 import { PlatformIntegrations } from "@/components/integration/platforms/PlatformIntegrations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings2 } from "lucide-react";
+import { Settings2, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 
 export const Settings = () => {
   const { toast } = useToast();
@@ -31,14 +33,58 @@ export const Settings = () => {
     console.log('Platform toggled:', platformIndex, integrationIndex);
   };
 
+  const handleSaveChanges = () => {
+    toast({
+      title: "Changes Saved",
+      description: "Your platform integration settings have been updated successfully.",
+    });
+  };
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Settings</h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between border-b border-border pb-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Platform Settings</h1>
+          <p className="text-muted-foreground">
+            Configure your integrations and platform preferences
+          </p>
+        </div>
+        <Tooltip content="Save all changes">
+          <Button 
+            onClick={handleSaveChanges}
+            className="bg-primary hover:bg-primary/90 text-white font-semibold"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
+          </Button>
+        </Tooltip>
       </div>
 
       <div className="grid gap-6">
-        <PlatformIntegrations onPlatformToggle={handlePlatformToggle} />
+        <Card className="border-2 border-primary/10 shadow-lg">
+          <CardHeader className="bg-primary/5">
+            <div className="flex items-center gap-2">
+              <Settings2 className="w-5 h-5 text-primary" />
+              <CardTitle className="text-lg font-semibold">Integration Hub</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="max-w-4xl mx-auto">
+              <PlatformIntegrations onPlatformToggle={handlePlatformToggle} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end mt-6">
+          <Button 
+            onClick={handleSaveChanges}
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-white font-semibold"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Save All Changes
+          </Button>
+        </div>
       </div>
     </div>
   );
