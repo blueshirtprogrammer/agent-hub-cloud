@@ -7,6 +7,8 @@ export const captureAndAnalyzeScreen = async (context: string) => {
     const canvas = await html2canvas(document.body);
     const screenshot = canvas.toDataURL('image/png');
 
+    console.log('Screenshot captured, sending to analysis...');
+
     // Call the edge function directly
     const { data, error } = await supabase.functions.invoke('analyze-interface', {
       body: { 

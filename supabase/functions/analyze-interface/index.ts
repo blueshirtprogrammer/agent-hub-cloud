@@ -22,6 +22,11 @@ serve(async (req) => {
 
   try {
     const { screenshot, context } = await req.json()
+    
+    if (!screenshot) {
+      throw new Error('Screenshot data is required')
+    }
+
     console.log('Analyzing interface with context:', context)
 
     // Initialize Supabase client
@@ -30,8 +35,14 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    // Validate and extract base64 data
+    const base64Data = screenshot.split(',')[1]
+    if (!base64Data) {
+      throw new Error('Invalid screenshot data format')
+    }
+
     // Convert base64 to Uint8Array for Gemini
-    const binaryData = Uint8Array.from(atob(screenshot.split(',')[1]), c => c.charCodeAt(0))
+    const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))
     
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
@@ -79,7 +90,7 @@ Provide analysis in this format:
         role: 'user',
         parts: [
           { text: prompt },
-          { inlineData: { mimeType: 'image/png', data: screenshot.split(',')[1] } }
+          { inlineData: { mimeType: 'image/png', data: base64Data } }
         ]
       }]
     })
