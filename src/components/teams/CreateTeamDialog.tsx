@@ -8,10 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PlusCircle } from "lucide-react";
 
+type BillingTier = "basic" | "pro" | "enterprise";
+
 export const CreateTeamDialog = ({ onTeamCreated }: { onTeamCreated: () => void }) => {
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [billingTier, setBillingTier] = React.useState("basic");
+  const [billingTier, setBillingTier] = React.useState<BillingTier>("basic");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,18 +22,16 @@ export const CreateTeamDialog = ({ onTeamCreated }: { onTeamCreated: () => void 
     try {
       const { data, error } = await supabase
         .from('team_configurations')
-        .insert([
-          {
-            name,
-            description,
-            billing_tier: billingTier,
-            requirements: {
-              license: true,
-              compliance: true
-            },
-            tools_and_integrations: ["document_processing", "photography", "marketing", "offers"]
-          }
-        ])
+        .insert({
+          name,
+          description,
+          billing_tier: billingTier,
+          requirements: {
+            license: true,
+            compliance: true
+          },
+          tools_and_integrations: ["document_processing", "photography", "marketing", "offers"]
+        })
         .select()
         .single();
 
@@ -87,7 +87,7 @@ export const CreateTeamDialog = ({ onTeamCreated }: { onTeamCreated: () => void 
           </div>
           <div className="space-y-2">
             <Label htmlFor="billingTier">Billing Tier</Label>
-            <Select value={billingTier} onValueChange={setBillingTier}>
+            <Select value={billingTier} onValueChange={(value: BillingTier) => setBillingTier(value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select billing tier" />
               </SelectTrigger>
