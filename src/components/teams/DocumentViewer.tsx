@@ -33,19 +33,22 @@ export const DocumentViewer = () => {
 
       const allDocs = [
         ...(processDocsRes.data || []).map(doc => ({
-          ...doc,
+          name: doc.name,
+          path: `process_documents/${doc.name}`,
           type: 'process',
-          path: `process_documents/${doc.name}`
+          uploadedAt: doc.created_at || new Date().toISOString()
         })),
         ...(propertyDocsRes.data || []).map(doc => ({
-          ...doc,
+          name: doc.name,
+          path: `property_documents/${doc.name}`,
           type: 'property',
-          path: `property_documents/${doc.name}`
+          uploadedAt: doc.created_at || new Date().toISOString()
         })),
         ...(listingDocsRes.data || []).map(doc => ({
-          ...doc,
+          name: doc.name,
+          path: `listing_documents/${doc.name}`,
           type: 'listing',
-          path: `listing_documents/${doc.name}`
+          uploadedAt: doc.created_at || new Date().toISOString()
         }))
       ];
 
