@@ -2,22 +2,35 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { WorkflowStages } from "@/components/workflow/WorkflowStages";
 import { DocumentRequirements } from "@/components/workflow/DocumentRequirements";
 import { supabase } from "@/integrations/supabase/client";
 
+interface WorkflowTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  stages: {
+    name: string;
+    title: string;
+    required_documents: string[];
+  }[];
+  required_documents: string[];
+}
+
 export const WorkflowManagement = () => {
-  const { data: workflows, isLoading } = useQuery({
+  const { data: workflow, isLoading } = useQuery({
     queryKey: ['workflows'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('workflow_templates')
         .select('*')
+        .eq('name', 'Form 6 to Settlement')
         .single();
 
       if (error) throw error;
-      return data;
+      return data as WorkflowTemplate;
     },
   });
 
@@ -38,7 +51,7 @@ export const WorkflowManagement = () => {
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[600px]">
-              <WorkflowStages stages={workflows?.stages || []} />
+              <WorkflowStages stages={workflow?.stages || []} />
             </ScrollArea>
           </CardContent>
         </Card>
@@ -49,7 +62,7 @@ export const WorkflowManagement = () => {
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[600px]">
-              <DocumentRequirements documents={workflows?.required_documents || []} />
+              <DocumentRequirements documents={workflow?.required_documents || []} />
             </ScrollArea>
           </CardContent>
         </Card>
