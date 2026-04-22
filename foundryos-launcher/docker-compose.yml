@@ -1,0 +1,17 @@
+services:
+  foundryos-launcher:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./runtime:/app/runtime
+      - ./packages:/app/packages
+      - ./.opencode:/app/.opencode
+      - ./.claude:/app/.claude
+      - ./.agents:/app/.agents
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025"
+      - "1025:1025"
