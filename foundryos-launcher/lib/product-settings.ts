@@ -108,6 +108,28 @@ export const approvalRouting = {
 
 export const productSettings: ProductSetting[] = [
   {
+    key: "acquirer_magnet_layer",
+    name: "Acquirer Magnet Layer",
+    description:
+      "Builds strategic gravity, acquirer mapping, scarcity narrative, partnerships, moat compounding, and not-for-sale posture so FOUNDRYOS is pursued rather than shopped.",
+    defaultMode: "autopilot",
+    recommendedMode: "autopilot",
+    category: "capital",
+    approvalRequired: true,
+    enabledByDefault: true,
+    features: [
+      "strategic_gravity_agent",
+      "acquirer_mapping_agent",
+      "scarcity_narrative_agent",
+      "enterprise_partnership_agent",
+      "platform_partnership_agent",
+      "strategic_investor_agent",
+      "moat_compounding_agent",
+      "competitive_intelligence_agent",
+      "not_for_sale_negotiation_agent"
+    ]
+  },
+  {
     key: "capital_studio_layer",
     name: "Capital Studio Layer",
     description:
@@ -282,8 +304,8 @@ export const productSettings: ProductSetting[] = [
 
 export const settingsSummary = {
   enabled: productSettings.filter((setting) => setting.enabledByDefault).map((setting) => setting.key),
-  defaultLaunchMode: "L4 executive-chain autopilot with owner observer mode, capital studio, strategic self-evolution, and venture intelligence",
+  defaultLaunchMode: "L4 executive-chain autopilot with owner observer mode, not-for-sale strategic gravity, capital studio, strategic self-evolution, and venture intelligence",
   approvalRouting,
   safetyRule:
-    "Dream, detect opportunities, simulate ventures, evaluate founder deals, structure studio participation, set goals, draft, prepare, personalise, report, improve skills, and approve within pre-approved policies autonomously. Escalate to the owner and legal review for securities, capital, non-standard contracts, regulated activity, or customer-impacting limits."
+    "Dream, detect opportunities, simulate ventures, evaluate founder deals, build strategic gravity, structure partnerships, set goals, draft, prepare, personalise, report, improve skills, and approve within pre-approved policies autonomously. Escalate to the owner and legal review for acquisition talks, securities, capital, non-standard contracts, regulated activity, or customer-impacting limits."
 };
