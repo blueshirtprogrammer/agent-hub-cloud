@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { connectorLinks, deploymentTargets, companyTemplates } from "@/lib/catalog";
 
 export default function Home() {
@@ -44,6 +45,7 @@ export default function Home() {
               <div>{s}</div>
             </div>
           ))}
+          <Link href="/settings"><button className="secondary" style={{ width: "100%" }}>Open product settings</button></Link>
         </aside>
       </section>
 
