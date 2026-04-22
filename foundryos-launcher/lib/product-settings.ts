@@ -7,7 +7,7 @@ export type ProductSetting = {
   description: string;
   defaultMode: SettingMode;
   recommendedMode: SettingMode;
-  category: "launch" | "licensing" | "revenue" | "governance" | "strategy" | "venture" | "capital";
+  category: "launch" | "licensing" | "revenue" | "governance" | "strategy" | "venture" | "capital" | "distribution";
   approvalRequired: boolean;
   enabledByDefault: boolean;
   features: string[];
@@ -107,6 +107,30 @@ export const approvalRouting = {
 };
 
 export const productSettings: ProductSetting[] = [
+  {
+    key: "distribution_supremacy_layer",
+    name: "Distribution Supremacy Layer",
+    description:
+      "Packages and distributes FOUNDRYOS across WordPress, npm, Docker, AWS Marketplace, HighLevel Marketplace, Product Hunt, affiliates, white-label agency apps, skill marketplaces, and enterprise channels.",
+    defaultMode: "autopilot",
+    recommendedMode: "autopilot",
+    category: "distribution",
+    approvalRequired: true,
+    enabledByDefault: true,
+    features: [
+      "distribution_commander_agent",
+      "marketplace_packaging_agent",
+      "wordpress_plugin_agent",
+      "docker_npm_packaging_agent",
+      "aws_marketplace_agent",
+      "highlevel_marketplace_agent",
+      "product_hunt_launch_agent",
+      "affiliate_program_agent",
+      "white_label_agency_app_agent",
+      "skill_marketplace_agent",
+      "channel_analytics_agent"
+    ]
+  },
   {
     key: "acquirer_magnet_layer",
     name: "Acquirer Magnet Layer",
@@ -304,8 +328,8 @@ export const productSettings: ProductSetting[] = [
 
 export const settingsSummary = {
   enabled: productSettings.filter((setting) => setting.enabledByDefault).map((setting) => setting.key),
-  defaultLaunchMode: "L4 executive-chain autopilot with owner observer mode, not-for-sale strategic gravity, capital studio, strategic self-evolution, and venture intelligence",
+  defaultLaunchMode: "L4 executive-chain autopilot with distribution supremacy, owner observer mode, not-for-sale strategic gravity, capital studio, strategic self-evolution, and venture intelligence",
   approvalRouting,
   safetyRule:
-    "Dream, detect opportunities, simulate ventures, evaluate founder deals, build strategic gravity, structure partnerships, set goals, draft, prepare, personalise, report, improve skills, and approve within pre-approved policies autonomously. Escalate to the owner and legal review for acquisition talks, securities, capital, non-standard contracts, regulated activity, or customer-impacting limits."
+    "Dream, detect opportunities, simulate ventures, evaluate founder deals, build strategic gravity, package distribution channels, structure partnerships, set goals, draft, prepare, personalise, report, improve skills, and approve within pre-approved policies autonomously. Escalate to the owner and legal review for acquisition talks, securities, capital, non-standard contracts, marketplace submissions, regulated activity, or customer-impacting limits."
 };
