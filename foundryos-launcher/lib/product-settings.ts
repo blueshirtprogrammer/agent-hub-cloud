@@ -7,7 +7,7 @@ export type ProductSetting = {
   description: string;
   defaultMode: SettingMode;
   recommendedMode: SettingMode;
-  category: "launch" | "licensing" | "revenue" | "governance";
+  category: "launch" | "licensing" | "revenue" | "governance" | "strategy";
   approvalRequired: boolean;
   enabledByDefault: boolean;
   features: string[];
@@ -107,6 +107,27 @@ export const approvalRouting = {
 };
 
 export const productSettings: ProductSetting[] = [
+  {
+    key: "strategic_growth_loop",
+    name: "Strategic Growth Loop",
+    description:
+      "Lets FOUNDRYOS observe itself, dream strategically, set goals, design experiments, improve skills, and move toward proof, revenue, recurring customers, and exit readiness without waiting for owner prompts.",
+    defaultMode: "autopilot",
+    recommendedMode: "autopilot",
+    category: "strategy",
+    approvalRequired: false,
+    enabledByDefault: true,
+    features: [
+      "chief_strategy_agent",
+      "goal_architect",
+      "experiment_designer",
+      "monetisation_stage_tracking",
+      "self_improvement_agent",
+      "skill_evolution",
+      "weekly_dream_memo",
+      "owner_summary_by_exception"
+    ]
+  },
   {
     key: "self_launch_autopilot",
     name: "Self-Launch Autopilot",
@@ -216,8 +237,8 @@ export const productSettings: ProductSetting[] = [
 
 export const settingsSummary = {
   enabled: productSettings.filter((setting) => setting.enabledByDefault).map((setting) => setting.key),
-  defaultLaunchMode: "L4 executive-chain autopilot with owner observer mode",
+  defaultLaunchMode: "L4 executive-chain autopilot with owner observer mode plus strategic self-evolution",
   approvalRouting,
   safetyRule:
-    "Draft, prepare, personalise, report, and approve within pre-approved policies autonomously. Escalate to the owner only when outside budget, scope, legal, production, security, or customer-impacting limits."
+    "Dream, set goals, draft, prepare, personalise, report, improve skills, and approve within pre-approved policies autonomously. Escalate to the owner only when outside budget, scope, legal, production, security, or customer-impacting limits."
 };
