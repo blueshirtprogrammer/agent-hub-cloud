@@ -1,0 +1,14 @@
+.env
+.env.*
+node_modules/
+.next/
+out/
+*.log
+.DS_Store
+runtime/**
+!runtime/.gitkeep
+packages/**
+!packages/.gitkeep
+.opencode/
+.claude/
+.agents/
