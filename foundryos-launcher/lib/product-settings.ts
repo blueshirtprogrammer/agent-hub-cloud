@@ -16,8 +16,8 @@ export type ProductSetting = {
 export type ApprovalRoute = {
   actionType: string;
   ownerVisible: boolean;
-  defaultApprover: "department_head" | "c_suite" | "ceo_agent" | "board_agent" | "human_owner";
-  fallbackApprover: "ceo_agent" | "board_agent" | "human_owner";
+  defaultApprover: string;
+  fallbackApprover: string;
   autoApprovalLimit: string;
 };
 
