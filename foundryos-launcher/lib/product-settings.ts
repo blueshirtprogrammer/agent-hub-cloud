@@ -7,7 +7,7 @@ export type ProductSetting = {
   description: string;
   defaultMode: SettingMode;
   recommendedMode: SettingMode;
-  category: "launch" | "licensing" | "revenue" | "governance" | "strategy";
+  category: "launch" | "licensing" | "revenue" | "governance" | "strategy" | "venture";
   approvalRequired: boolean;
   enabledByDefault: boolean;
   features: string[];
@@ -107,6 +107,28 @@ export const approvalRouting = {
 };
 
 export const productSettings: ProductSetting[] = [
+  {
+    key: "venture_intelligence_layer",
+    name: "Venture Intelligence Layer",
+    description:
+      "Lets FOUNDRYOS operate like an autonomous venture studio: detect market signals, simulate ventures, spawn company packages, run micro-tests, compound proof, and decide scale/pause/kill.",
+    defaultMode: "autopilot",
+    recommendedMode: "autopilot",
+    category: "venture",
+    approvalRequired: false,
+    enabledByDefault: true,
+    features: [
+      "market_radar_agent",
+      "venture_simulation_agent",
+      "capital_allocator_agent",
+      "company_spawner_agent",
+      "synthetic_customer_council",
+      "proof_factory_agent",
+      "founder_narrative_agent",
+      "m_and_a_radar_agent",
+      "hive_court_agent"
+    ]
+  },
   {
     key: "strategic_growth_loop",
     name: "Strategic Growth Loop",
@@ -237,8 +259,8 @@ export const productSettings: ProductSetting[] = [
 
 export const settingsSummary = {
   enabled: productSettings.filter((setting) => setting.enabledByDefault).map((setting) => setting.key),
-  defaultLaunchMode: "L4 executive-chain autopilot with owner observer mode plus strategic self-evolution",
+  defaultLaunchMode: "L4 executive-chain autopilot with owner observer mode, strategic self-evolution, and venture intelligence",
   approvalRouting,
   safetyRule:
-    "Dream, set goals, draft, prepare, personalise, report, improve skills, and approve within pre-approved policies autonomously. Escalate to the owner only when outside budget, scope, legal, production, security, or customer-impacting limits."
+    "Dream, detect opportunities, simulate ventures, set goals, draft, prepare, personalise, report, improve skills, and approve within pre-approved policies autonomously. Escalate to the owner only when outside budget, scope, legal, production, security, or customer-impacting limits."
 };
