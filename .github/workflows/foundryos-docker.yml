@@ -1,0 +1,40 @@
+name: Build FOUNDRYOS Docker Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'foundryos-launcher/**'
+      - '.github/workflows/foundryos-docker.yml'
+  workflow_dispatch:
+
+jobs:
+  docker:
+    name: Build and optionally publish Docker image
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: foundryos-launcher
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        run: docker build -t foundryos/launcher:0.3.0 -t foundryos/launcher:latest .
+
+      - name: Login to Docker Hub
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push image
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        run: |
+          docker push foundryos/launcher:0.3.0
+          docker push foundryos/launcher:latest
