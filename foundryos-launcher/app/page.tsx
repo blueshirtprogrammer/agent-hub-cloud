@@ -3,6 +3,7 @@ import { connectorLinks, deploymentTargets, companyTemplates } from "@/lib/catal
 
 const commandLinks = [
   ["Owner War Room", "/war-room", "Cash, MRR, installs, leases, bottlenecks."],
+  ["MoltClaw", "/moltclaw", "Department extension for HighLevel-native execution."],
   ["Studio Deal Room", "/deal-room", "Founder ideas, AI investment committee, venture structures."],
   ["Distribution", "/distribution", "WordPress, npm, Docker, AWS, GHL, Product Hunt, affiliates."],
   ["Pricing", "/pricing", "Founder installs, leases, agency, enterprise, studio economics."],
@@ -15,12 +16,12 @@ export default function Home() {
     <main className="container">
       <section className="hero">
         <div>
-          <div className="badge">FOUNDRYOS™ Launcher Alpha</div>
+          <div className="badge">FOUNDRYOS™ v0.3.0 / MoltClaw Department Extension</div>
           <h1>Deploy AI companies, not AI assistants.</h1>
           <p>
             Describe the company, pick the template, connect credentials, install Paperclip,
-            wire agent harnesses, import the AI company, deploy locally or to cloud, then lease
-            agents, departments, or full company setups behind a licence heartbeat.
+            wire agent harnesses, import the AI company, and extend each department into
+            MoltClaw/HighLevel execution rails for CRM, voice, workflows, bookings, and agency rollout.
           </p>
           <div className="card">
             <h2>Stand up a company</h2>
