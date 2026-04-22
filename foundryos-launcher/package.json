@@ -1,0 +1,33 @@
+{
+  "name": "foundryos-launcher",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "doctor": "node scripts/doctor.mjs",
+    "open-connectors": "node scripts/open-connectors.mjs",
+    "install-local": "bash scripts/install-local.sh",
+    "import-company": "bash scripts/import-company.sh",
+    "install-skills": "bash scripts/install-skills.sh",
+    "bootstrap": "bash scripts/bootstrap.sh"
+  },
+  "dependencies": {
+    "@next/env": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "zod": "latest",
+    "execa": "latest",
+    "open": "latest",
+    "dotenv": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "typescript": "latest",
+    "eslint": "latest"
+  }
+}
