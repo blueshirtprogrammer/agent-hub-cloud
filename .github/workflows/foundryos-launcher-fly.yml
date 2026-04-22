@@ -1,0 +1,30 @@
+name: Deploy FOUNDRYOS Launcher to Fly
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'foundryos-launcher/**'
+      - '.github/workflows/foundryos-launcher-fly.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy launcher
+    runs-on: ubuntu-latest
+    concurrency: foundryos-launcher-deploy
+    defaults:
+      run:
+        working-directory: foundryos-launcher
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Fly
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
