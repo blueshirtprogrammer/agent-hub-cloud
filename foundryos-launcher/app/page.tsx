@@ -1,17 +1,26 @@
 import Link from "next/link";
 import { connectorLinks, deploymentTargets, companyTemplates } from "@/lib/catalog";
 
+const commandLinks = [
+  ["Owner War Room", "/war-room", "Cash, MRR, installs, leases, bottlenecks."],
+  ["Studio Deal Room", "/deal-room", "Founder ideas, AI investment committee, venture structures."],
+  ["Distribution", "/distribution", "WordPress, npm, Docker, AWS, GHL, Product Hunt, affiliates."],
+  ["Pricing", "/pricing", "Founder installs, leases, agency, enterprise, studio economics."],
+  ["Investor", "/investor", "Pre-seed category narrative and platform thesis."],
+  ["Settings", "/settings", "Autopilot layers, licence heartbeat, approval chain."],
+];
+
 export default function Home() {
   return (
     <main className="container">
       <section className="hero">
         <div>
           <div className="badge">FOUNDRYOS™ Launcher Alpha</div>
-          <h1>One-click company deployment.</h1>
+          <h1>Deploy AI companies, not AI assistants.</h1>
           <p>
             Describe the company, pick the template, connect credentials, install Paperclip,
             wire agent harnesses, import the AI company, deploy locally or to cloud, then lease
-            agents or full company setups behind a paywall.
+            agents, departments, or full company setups behind a licence heartbeat.
           </p>
           <div className="card">
             <h2>Stand up a company</h2>
@@ -29,23 +38,15 @@ export default function Home() {
         </div>
 
         <aside className="card grid">
-          <h2>Install sequence</h2>
-          {[
-            "Check system requirements",
-            "Install/validate CLI harnesses",
-            "Connect model + revenue credentials",
-            "Import FOUNDRYOS company into Paperclip",
-            "Install skills into OpenCode / Claude / agent directories",
-            "Deploy local, Fly.io, or self-hosted",
-            "Enable billing + marketplace access",
-            "Start CEO → CRO → RevOps proof loop"
-          ].map((s, i) => (
-            <div className="step" key={s}>
-              <div className="num">{i + 1}</div>
-              <div>{s}</div>
-            </div>
+          <h2>Command surfaces</h2>
+          {commandLinks.map(([label, href, description], i) => (
+            <Link href={href} key={href}>
+              <button className={i === 0 ? undefined : "secondary"} style={{ width: "100%", textAlign: "left" }}>
+                {label}<br />
+                <span className="small">{description}</span>
+              </button>
+            </Link>
           ))}
-          <Link href="/settings"><button className="secondary" style={{ width: "100%" }}>Open product settings</button></Link>
         </aside>
       </section>
 
@@ -67,7 +68,7 @@ export default function Home() {
           <p>Local first, then Fly.io for runtime demos, Coolify for self-hosted commercial deployments, and enterprise private cloud later.</p>
           <pre>{`pnpm bootstrap\npnpm import-company\npnpm install-skills\npnpm dev`}</pre>
           <p className="small">
-            External sending, invoices, contracts, production deletes, and capital raise material stay behind approval gates.
+            External sending, invoices, contracts, production deletes, and capital raise material route through executive approval chains.
           </p>
         </div>
       </section>
