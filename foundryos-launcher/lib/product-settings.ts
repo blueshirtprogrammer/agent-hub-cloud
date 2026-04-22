@@ -7,7 +7,7 @@ export type ProductSetting = {
   description: string;
   defaultMode: SettingMode;
   recommendedMode: SettingMode;
-  category: "launch" | "licensing" | "revenue" | "governance" | "strategy" | "venture";
+  category: "launch" | "licensing" | "revenue" | "governance" | "strategy" | "venture" | "capital";
   approvalRequired: boolean;
   enabledByDefault: boolean;
   features: string[];
@@ -107,6 +107,29 @@ export const approvalRouting = {
 };
 
 export const productSettings: ProductSetting[] = [
+  {
+    key: "capital_studio_layer",
+    name: "Capital Studio Layer",
+    description:
+      "Lets founders bring ideas, capital, distribution, or domain insight into an AI investment-committee flow where FOUNDRYOS evaluates, structures, spawns, and operates ventures as an AI co-founder/studio partner.",
+    defaultMode: "autopilot",
+    recommendedMode: "autopilot",
+    category: "capital",
+    approvalRequired: true,
+    enabledByDefault: true,
+    features: [
+      "deal_intake_agent",
+      "founder_interview_agent",
+      "ai_investment_committee",
+      "due_diligence_agent",
+      "venture_structuring_agent",
+      "term_sheet_agent",
+      "operator_cofounder_agent",
+      "studio_portfolio_agent",
+      "portfolio_growth_agent",
+      "exit_path_agent"
+    ]
+  },
   {
     key: "venture_intelligence_layer",
     name: "Venture Intelligence Layer",
@@ -259,8 +282,8 @@ export const productSettings: ProductSetting[] = [
 
 export const settingsSummary = {
   enabled: productSettings.filter((setting) => setting.enabledByDefault).map((setting) => setting.key),
-  defaultLaunchMode: "L4 executive-chain autopilot with owner observer mode, strategic self-evolution, and venture intelligence",
+  defaultLaunchMode: "L4 executive-chain autopilot with owner observer mode, capital studio, strategic self-evolution, and venture intelligence",
   approvalRouting,
   safetyRule:
-    "Dream, detect opportunities, simulate ventures, set goals, draft, prepare, personalise, report, improve skills, and approve within pre-approved policies autonomously. Escalate to the owner only when outside budget, scope, legal, production, security, or customer-impacting limits."
+    "Dream, detect opportunities, simulate ventures, evaluate founder deals, structure studio participation, set goals, draft, prepare, personalise, report, improve skills, and approve within pre-approved policies autonomously. Escalate to the owner and legal review for securities, capital, non-standard contracts, regulated activity, or customer-impacting limits."
 };
