@@ -12,6 +12,7 @@
     "install-local": "bash scripts/install-local.sh",
     "import-company": "bash scripts/import-company.sh",
     "install-skills": "bash scripts/install-skills.sh",
+    "paperclip:v2": "node scripts/build-paperclip-v2.mjs",
     "bootstrap": "bash scripts/bootstrap.sh"
   },
   "dependencies": {
