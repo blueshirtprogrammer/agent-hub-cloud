@@ -9,8 +9,8 @@ export type ProvisionExecutionResult = {
   runtimeUrl: string | null;
 };
 
-export function provisionTenantRuntime(tenantId: string): ProvisionExecutionResult {
-  const tenant = getTenant(tenantId);
+export async function provisionTenantRuntime(tenantId: string): Promise<ProvisionExecutionResult> {
+  const tenant = await getTenant(tenantId);
   if (!tenant) {
     return {
       status: "not_found",
@@ -43,9 +43,9 @@ export function provisionTenantRuntime(tenantId: string): ProvisionExecutionResu
     `Lifecycle -> active`
   ];
 
-  transitionTenant(tenantId, "provisioning", `Provision requested using ${providerPlan.name}.`);
-  transitionTenant(tenantId, "booting", `Boot sequence started for ${providerPlan.name}.`);
-  const active = transitionTenant(tenantId, "active", `Tenant marked active after alpha provision flow.`);
+  await transitionTenant(tenantId, "provisioning", `Provision requested using ${providerPlan.name}.`);
+  await transitionTenant(tenantId, "booting", `Boot sequence started for ${providerPlan.name}.`);
+  const active = await transitionTenant(tenantId, "active", `Tenant marked active after alpha provision flow.`);
 
   return {
     status: "provisioned",
