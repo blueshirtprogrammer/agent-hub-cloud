@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listTenants } from "@/lib/tenants";
 import { createCloudProvisionPlan } from "@/lib/cloud-provisioner";
+import CloudDashboard from "@/components/cloud-dashboard";
 
 export default function CloudPage() {
   const tenants = listTenants();
@@ -16,24 +17,13 @@ export default function CloudPage() {
         owner-facing War Room URLs.
       </p>
 
-      <section className="grid2" style={{ marginTop: 24 }}>
-        <div className="card grid">
-          <h2>Cloud alpha posture</h2>
-          <pre>{JSON.stringify(plan, null, 2)}</pre>
-        </div>
-        <div className="card grid">
-          <h2>Seed tenants</h2>
-          {tenants.map((tenant) => (
-            <div className="step" key={tenant.id}>
-              <div className="num">✓</div>
-              <div>
-                <strong>{tenant.name}</strong><br />
-                <span className="small">{tenant.plan} • {tenant.template} • {tenant.lifecycle}</span><br />
-                <span className="small">{tenant.runtimeUrl}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+      <section className="card" style={{ marginTop: 24 }}>
+        <h2>Default cloud provision plan</h2>
+        <pre>{JSON.stringify(plan, null, 2)}</pre>
+      </section>
+
+      <section style={{ marginTop: 24 }}>
+        <CloudDashboard initialTenants={tenants} />
       </section>
 
       <section className="card" style={{ marginTop: 24 }}>
