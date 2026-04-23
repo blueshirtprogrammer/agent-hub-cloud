@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { listTenants } from "@/lib/tenants";
 
 export async function GET() {
-  const tenants = listTenants();
+  const tenants = await listTenants();
   const active = tenants.filter((tenant) => tenant.lifecycle === "active").length;
   const provisioning = tenants.filter((tenant) => tenant.lifecycle === "provisioning" || tenant.lifecycle === "booting").length;
   const suspended = tenants.filter((tenant) => tenant.lifecycle === "suspended").length;
