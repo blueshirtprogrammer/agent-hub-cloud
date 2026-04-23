@@ -1,4 +1,4 @@
-import { readCollection, writeCollection } from "@/lib/db";
+import { listTenantRecords, saveTenantRecords, getTenantRecord, transitionTenantRecord } from "@/lib/tenant-repository";
 
 export type TenantLifecycle = "created" | "provisioning" | "booting" | "active" | "suspended" | "archived" | "failed";
 
@@ -14,8 +14,6 @@ export type TenantRecord = {
   createdAt: string;
   notes: string[];
 };
-
-const COLLECTION = "tenants";
 
 function slugify(input: string) {
   return input
@@ -33,16 +31,8 @@ function mockRuntimeUrl(id: string) {
   return `https://${id}.foundryos-cloud.local`;
 }
 
-function loadTenants() {
-  return readCollection<TenantRecord[]>(COLLECTION, []);
-}
-
-function saveTenants(records: TenantRecord[]) {
-  writeCollection(COLLECTION, records);
-}
-
 function ensureSeedTenant() {
-  const records = loadTenants();
+  const records = listTenantRecords();
   if (records.length) return records;
 
   const seed = createTenant({
@@ -57,7 +47,7 @@ function ensureSeedTenant() {
 }
 
 export function createTenant(input: Partial<Pick<TenantRecord, "name" | "plan" | "template" | "provider" | "region">>) {
-  const records = loadTenants();
+  const records = listTenantRecords();
   const id = `tnt_${slugify(input.name ?? "foundryos-demo")}_${Date.now().toString(36)}`;
   const record: TenantRecord = {
     id,
@@ -76,7 +66,7 @@ export function createTenant(input: Partial<Pick<TenantRecord, "name" | "plan" |
     ]
   };
 
-  saveTenants([record, ...records]);
+  saveTenantRecords([record, ...records]);
   return record;
 }
 
@@ -85,23 +75,9 @@ export function listTenants() {
 }
 
 export function getTenant(id: string) {
-  return listTenants().find((record) => record.id === id) ?? null;
+  return getTenantRecord(id) ?? null;
 }
 
 export function transitionTenant(id: string, lifecycle: TenantLifecycle, note?: string) {
-  const records = listTenants();
-  const index = records.findIndex((record) => record.id === id);
-  if (index === -1) return null;
-
-  const current = records[index];
-  const updated: TenantRecord = {
-    ...current,
-    lifecycle,
-    notes: note ? [...current.notes, note] : current.notes
-  };
-
-  const next = [...records];
-  next[index] = updated;
-  saveTenants(next);
-  return updated;
+  return transitionTenantRecord(id, lifecycle, note);
 }
