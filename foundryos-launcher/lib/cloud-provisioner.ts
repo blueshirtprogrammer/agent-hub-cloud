@@ -1,3 +1,5 @@
+import { getProviderPlan } from "@/lib/cloud-providers";
+
 export type CloudProvider = "fly_machines" | "coolify_compose" | "manual_docker";
 
 export type CloudProvisionRequest = {
@@ -14,6 +16,7 @@ export function createCloudProvisionPlan(input: CloudProvisionRequest) {
   const provider = input.provider ?? "fly_machines";
   const region = input.region ?? "syd";
   const template = input.template ?? "enterprise-hospitality-ai";
+  const providerPlan = getProviderPlan(provider);
 
   return {
     status: "planned",
@@ -25,6 +28,7 @@ export function createCloudProvisionPlan(input: CloudProvisionRequest) {
       lifecycle: "created"
     },
     provider,
+    providerPlan,
     region,
     architecture:
       "Central FOUNDRYOS control plane plus isolated per-tenant/company runtime instances.",
@@ -39,15 +43,13 @@ export function createCloudProvisionPlan(input: CloudProvisionRequest) {
       "FOUNDRYOS_LICENCE_SECRET",
       "ENTITLEMENTS_PROVIDER_KEY",
       "PAPERCLIP_RUNTIME_URL_OR_IMPORT_TARGET",
-      "MOLTCLAW_RUNTIME_CONTEXT_IF_AVAILABLE"
+      "MOLTCLAW_RUNTIME_CONTEXT_IF_AVAILABLE",
+      ...providerPlan.requiredSecrets
     ],
     bootSequence: [
       "Create tenant record.",
       "Verify entitlement/payment status.",
-      "Provision isolated runtime instance.",
-      "Attach tenant environment config.",
-      "Boot FOUNDRYOS image.",
-      "Run runtime status health check.",
+      ...providerPlan.provisionSteps,
       "Generate or attach Paperclip v2 package.",
       "Load skills and harness registry.",
       "Connect MoltClaw/HighLevel context if authorised.",
