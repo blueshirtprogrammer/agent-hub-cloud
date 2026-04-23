@@ -71,6 +71,22 @@ export default function CloudDashboard({ initialTenants }: Props) {
     });
   }
 
+  function provisionTenant(id: string) {
+    startTransition(async () => {
+      setMessage("Provisioning tenant runtime...");
+      const res = await fetch(`/api/cloud/tenants/${id}/provision`, {
+        method: "POST"
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage(`Provision failed: ${data.status || res.status}`);
+        return;
+      }
+      setTenants((prev) => prev.map((tenant) => (tenant.id === id ? data.tenant : tenant)));
+      setMessage(`Tenant provisioned: ${data.tenant.name} → ${data.tenant.lifecycle}`);
+    });
+  }
+
   return (
     <div className="grid" style={{ gap: 24 }}>
       <section className="grid2">
@@ -108,6 +124,9 @@ export default function CloudDashboard({ initialTenants }: Props) {
             <span className="small">{tenant.plan} • {tenant.template} • {tenant.provider} • {tenant.region}</span>
             <span className="small">{tenant.runtimeUrl}</span>
             <div className="grid2">
+              <button onClick={() => provisionTenant(tenant.id)} disabled={isPending || tenant.lifecycle === "active"}>
+                {isPending ? "Working..." : "Provision"}
+              </button>
               {lifecycleButtons.map((lifecycle) => (
                 <button key={lifecycle} className="secondary" onClick={() => transitionTenant(tenant.id, lifecycle)} disabled={isPending || tenant.lifecycle === lifecycle}>
                   {lifecycle}
