@@ -3,7 +3,7 @@ import { provisionTenantRuntime } from "@/lib/provider-executor";
 
 export async function POST(_: NextRequest, context: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = await context.params;
-  const result = provisionTenantRuntime(tenantId);
+  const result = await provisionTenantRuntime(tenantId);
 
   if (result.status === "not_found") {
     return NextResponse.json({ status: "not_found" }, { status: 404 });
