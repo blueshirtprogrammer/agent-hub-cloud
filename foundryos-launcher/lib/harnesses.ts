@@ -36,6 +36,51 @@ export const foundryHarnesses: FoundryHarness[] = [
     ]
   },
   {
+    key: "openagent_internal",
+    name: "Oh My OpenAgent Harness",
+    type: "internal_operator_swarm_harness",
+    status: "spec_ready",
+    description:
+      "Treat Oh My OpenAgent as the internal operator swarm for coding, research, multi-agent planning, repo execution, model orchestration, and self-improvement proposals inside FOUNDRYOS.",
+    roles: [
+      "Internal operator swarm",
+      "Code and repo execution",
+      "Research and synthesis",
+      "Multi-agent planning",
+      "Model and skill orchestration",
+      "Template generation",
+      "Self-improvement proposals"
+    ],
+    guardrails: [
+      "Keep OpenAgent focused on internal product, research, and execution work.",
+      "Route customer-facing CRM work to MoltClaw/HighLevel.",
+      "Do not treat OpenAgent as the company board or final approval chain.",
+      "Verify code and deployment outputs before production rollout."
+    ]
+  },
+  {
+    key: "orgo_computer_use",
+    name: "Orgo Computer-Use Harness",
+    type: "cloud_desktop_worker_harness",
+    status: "spec_ready",
+    description:
+      "Treat Orgo as the cloud desktop and computer-use worker layer for browser, GUI, and multi-application tasks that should run in isolated cloud environments instead of on an operator laptop.",
+    roles: [
+      "Cloud desktop workers",
+      "Browser and GUI execution",
+      "Computer-use automation",
+      "Visual proof capture",
+      "Persistent worker sessions",
+      "Multi-application task execution"
+    ],
+    guardrails: [
+      "Use isolated cloud workspaces only.",
+      "Do not run hidden or unauthorised account actions.",
+      "Prefer official API, SDK, and workspace controls.",
+      "Route strategic decision-making back to FOUNDRYOS/PaperAI."
+    ]
+  },
+  {
     key: "paperclip_company_runtime",
     name: "Paperclip Company Runtime",
     type: "agent_company_control_plane",
