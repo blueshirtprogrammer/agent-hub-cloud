@@ -1,3 +1,5 @@
+import { readCollection, writeCollection } from "@/lib/db";
+
 export type TenantLifecycle = "created" | "provisioning" | "booting" | "active" | "suspended" | "archived" | "failed";
 
 export type TenantRecord = {
@@ -13,7 +15,7 @@ export type TenantRecord = {
   notes: string[];
 };
 
-const tenantStore = new Map<string, TenantRecord>();
+const COLLECTION = "tenants";
 
 function slugify(input: string) {
   return input
@@ -31,7 +33,31 @@ function mockRuntimeUrl(id: string) {
   return `https://${id}.foundryos-cloud.local`;
 }
 
+function loadTenants() {
+  return readCollection<TenantRecord[]>(COLLECTION, []);
+}
+
+function saveTenants(records: TenantRecord[]) {
+  writeCollection(COLLECTION, records);
+}
+
+function ensureSeedTenant() {
+  const records = loadTenants();
+  if (records.length) return records;
+
+  const seed = createTenant({
+    name: "FoundryOS Demo Agency",
+    plan: "founder_install",
+    template: "enterprise-hospitality-ai",
+    provider: "fly_machines",
+    region: "syd"
+  });
+
+  return [seed];
+}
+
 export function createTenant(input: Partial<Pick<TenantRecord, "name" | "plan" | "template" | "provider" | "region">>) {
+  const records = loadTenants();
   const id = `tnt_${slugify(input.name ?? "foundryos-demo")}_${Date.now().toString(36)}`;
   const record: TenantRecord = {
     id,
@@ -50,37 +76,32 @@ export function createTenant(input: Partial<Pick<TenantRecord, "name" | "plan" |
     ]
   };
 
-  tenantStore.set(id, record);
+  saveTenants([record, ...records]);
   return record;
 }
 
 export function listTenants() {
-  return Array.from(tenantStore.values()).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return ensureSeedTenant().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 }
 
 export function getTenant(id: string) {
-  return tenantStore.get(id) ?? null;
+  return listTenants().find((record) => record.id === id) ?? null;
 }
 
 export function transitionTenant(id: string, lifecycle: TenantLifecycle, note?: string) {
-  const record = tenantStore.get(id);
-  if (!record) return null;
-  const updated: TenantRecord = {
-    ...record,
-    lifecycle,
-    notes: note ? [...record.notes, note] : record.notes
-  };
-  tenantStore.set(id, updated);
-  return updated;
-}
+  const records = listTenants();
+  const index = records.findIndex((record) => record.id === id);
+  if (index === -1) return null;
 
-// seed one demo tenant so the UI never looks empty in alpha
-if (!tenantStore.size) {
-  createTenant({
-    name: "FoundryOS Demo Agency",
-    plan: "founder_install",
-    template: "enterprise-hospitality-ai",
-    provider: "fly_machines",
-    region: "syd"
-  });
+  const current = records[index];
+  const updated: TenantRecord = {
+    ...current,
+    lifecycle,
+    notes: note ? [...current.notes, note] : current.notes
+  };
+
+  const next = [...records];
+  next[index] = updated;
+  saveTenants(next);
+  return updated;
 }
