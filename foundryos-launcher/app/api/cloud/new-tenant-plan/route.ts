@@ -4,7 +4,7 @@ import { createCloudProvisionPlan } from "@/lib/cloud-provisioner";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const tenant = createTenant({
+  const tenant = await createTenant({
     name: body.name,
     plan: body.plan,
     template: body.template,
