@@ -4,7 +4,7 @@ import { createCloudProvisionPlan } from "@/lib/cloud-provisioner";
 
 export async function GET(_: NextRequest, context: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = await context.params;
-  const tenant = getTenant(tenantId);
+  const tenant = await getTenant(tenantId);
 
   if (!tenant) {
     return NextResponse.json({ status: "not_found" }, { status: 404 });
