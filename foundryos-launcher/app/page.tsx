@@ -3,6 +3,7 @@ import { connectorLinks, deploymentTargets, companyTemplates } from "@/lib/catal
 
 const commandLinks = [
   ["Owner War Room", "/war-room", "Cash, MRR, installs, leases, bottlenecks."],
+  ["Cloud", "/cloud", "Tenant control plane and hosted company runtime plan."],
   ["MoltClaw", "/moltclaw", "Department extension for HighLevel-native execution."],
   ["Studio Deal Room", "/deal-room", "Founder ideas, AI investment committee, venture structures."],
   ["Distribution", "/distribution", "WordPress, npm, Docker, AWS, GHL, Product Hunt, affiliates."],
@@ -20,8 +21,8 @@ export default function Home() {
           <h1>Deploy AI companies, not AI assistants.</h1>
           <p>
             Describe the company, pick the template, connect credentials, install Paperclip,
-            wire agent harnesses, import the AI company, and extend each department into
-            MoltClaw/HighLevel execution rails for CRM, voice, workflows, bookings, and agency rollout.
+            wire agent harnesses, import the AI company, extend each department into
+            MoltClaw/HighLevel execution rails, and move toward hosted tenant runtimes.
           </p>
           <div className="card">
             <h2>Stand up a company</h2>
