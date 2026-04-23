@@ -31,11 +31,11 @@ function mockRuntimeUrl(id: string) {
   return `https://${id}.foundryos-cloud.local`;
 }
 
-function ensureSeedTenant() {
-  const records = listTenantRecords();
+async function ensureSeedTenant() {
+  const records = await listTenantRecords();
   if (records.length) return records;
 
-  const seed = createTenant({
+  const seed = await createTenant({
     name: "FoundryOS Demo Agency",
     plan: "founder_install",
     template: "enterprise-hospitality-ai",
@@ -46,8 +46,8 @@ function ensureSeedTenant() {
   return [seed];
 }
 
-export function createTenant(input: Partial<Pick<TenantRecord, "name" | "plan" | "template" | "provider" | "region">>) {
-  const records = listTenantRecords();
+export async function createTenant(input: Partial<Pick<TenantRecord, "name" | "plan" | "template" | "provider" | "region">>) {
+  const records = await listTenantRecords();
   const id = `tnt_${slugify(input.name ?? "foundryos-demo")}_${Date.now().toString(36)}`;
   const record: TenantRecord = {
     id,
@@ -66,18 +66,18 @@ export function createTenant(input: Partial<Pick<TenantRecord, "name" | "plan" |
     ]
   };
 
-  saveTenantRecords([record, ...records]);
+  await saveTenantRecords([record, ...records]);
   return record;
 }
 
-export function listTenants() {
-  return ensureSeedTenant().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+export async function listTenants() {
+  return (await ensureSeedTenant()).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 }
 
-export function getTenant(id: string) {
-  return getTenantRecord(id) ?? null;
+export async function getTenant(id: string) {
+  return (await getTenantRecord(id)) ?? null;
 }
 
-export function transitionTenant(id: string, lifecycle: TenantLifecycle, note?: string) {
+export async function transitionTenant(id: string, lifecycle: TenantLifecycle, note?: string) {
   return transitionTenantRecord(id, lifecycle, note);
 }
