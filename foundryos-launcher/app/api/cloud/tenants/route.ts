@@ -4,6 +4,6 @@ import { listTenants } from "@/lib/tenants";
 export async function GET() {
   return NextResponse.json({
     status: "ok",
-    tenants: listTenants()
+    tenants: await listTenants()
   });
 }
