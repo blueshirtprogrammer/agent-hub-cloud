@@ -13,7 +13,7 @@ const allowed: TenantLifecycle[] = [
 
 export async function POST(req: NextRequest, context: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = await context.params;
-  const existing = getTenant(tenantId);
+  const existing = await getTenant(tenantId);
 
   if (!existing) {
     return NextResponse.json({ status: "not_found" }, { status: 404 });
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ tenant
     );
   }
 
-  const updated = transitionTenant(tenantId, requested as TenantLifecycle, note);
+  const updated = await transitionTenant(tenantId, requested as TenantLifecycle, note);
 
   return NextResponse.json({
     status: "updated",
