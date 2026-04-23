@@ -3,8 +3,8 @@ import { listTenants } from "@/lib/tenants";
 import { createCloudProvisionPlan } from "@/lib/cloud-provisioner";
 import CloudDashboard from "@/components/cloud-dashboard";
 
-export default function CloudPage() {
-  const tenants = listTenants();
+export default async function CloudPage() {
+  const tenants = await listTenants();
   const plan = createCloudProvisionPlan({});
 
   return (
